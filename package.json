@@ -1,24 +1,23 @@
 {
-  "name": "webpack-threejs-boilerplate",
+  "name": "three-js-webpack",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "webpack.config.js",
   "scripts": {
-    "start": "concurrently -k -p \"[{name}]\" -n \"Webpack,HTTP-Server\" -c \"cyan.bold,green.bold\"  \"npm run watch\" \"npm run serve\"",
-    "watch": "webpack --progress --watch",
-    "serve": "http-server ./dist -o",
-    "build": "webpack",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "webpack-dev-server --mode development --open",
+    "build": "webpack --mode production"
   },
+  "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "concurrently": "^3.5.1",
-    "http-server": "^0.11.1",
-    "webpack": "^4.5.0",
-    "webpack-cli": "^2.0.14"
-  },
-  "dependencies": {
-    "three": "^0.91.0"
+    "@babel/core": "^7.2.2",
+    "@babel/preset-env": "^7.3.1",
+    "babel-loader": "^8.0.5",
+    "html-webpack-plugin": "^3.2.0",
+    "three.js": "^0.77.1",
+    "webpack": "^4.29.0",
+    "webpack-cli": "^3.2.1",
+    "webpack-dev-server": "^3.1.14"
   }
 }
