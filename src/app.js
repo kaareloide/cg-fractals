@@ -1,6 +1,8 @@
 import * as THREE from 'three';
+import $ from "jquery";
 
 var camera, currentScene, renderer;
+
 
 init();
 animate();
@@ -16,6 +18,8 @@ function init() {
 	renderer = new THREE.WebGLRenderer( { antialias: true } );
 	renderer.setSize( window.innerWidth, window.innerHeight );
 	document.body.appendChild( renderer.domElement );
+    
+    readGLSL("testFile.txt");
 
 }
 
@@ -54,6 +58,7 @@ function createScene1() {
 	var mesh = new THREE.Mesh( geometry, material );
 	mesh.name = "mesh";
 	scene.add( mesh );
+    console.log(readGLSL("testFile.txt"));
 	return scene; 
 }
 
@@ -75,4 +80,26 @@ function createScene3() {
 	mesh.name = "mesh";
 	scene.add( mesh );
 	return scene; 
+}
+
+function createShaderMaterial(texture) {
+			
+    return new THREE.ShaderMaterial({
+        //This time we'll use three.js built-in UV mapping in the shader.
+        //It is the same mapping you created in the previous task. :)
+        uniforms: {
+            texture: {
+                type: 't',
+                value: texture
+            }
+        },
+        vertexShader: readGLSL("vertexShaderName.glsl"),
+        fragmentShader: readGLSL("fragShaderName.glsl")
+    });
+}
+
+function readGLSL(filename){
+    $.get("src/shaders/"+filename, function(data){
+       return data; 
+    });
 }
