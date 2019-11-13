@@ -54,7 +54,14 @@ function changeScene(e) {
 
 function createScene1() {
 	var scene = new THREE.Scene();
-	var geometry = new THREE.PlaneGeometry(5, 5, 32);
+    var geometry = new THREE.PlaneBufferGeometry(5, 5, 1);
+    var uvCoord = new Float32Array([
+        0,1,
+        1,1,
+        0,0,
+        1,0
+    ]);
+    geometry.addAttribute("uvCoord", new THREE.BufferAttribute(uvCoord, 2));
 	var material = createShaderMaterial(textures[0], VertexShaderBasic, FragShaderBasic);
 	var mesh = new THREE.Mesh( geometry, material );
 	mesh.name = "mesh";
@@ -65,13 +72,6 @@ function createScene1() {
 function createScene2() {
 	var scene = new THREE.Scene();
 	var geometry = new THREE.SphereGeometry(5, 32, 32);
-    var uvCoord = new Float32Array([
-        0,1,
-        1,1,
-        0,0,
-        1,0
-    ]);
-    geometry.addAttribute("uvCoord", new THREE.BufferAttribute(uvCoord, 2));
 	var material = new THREE.MeshNormalMaterial();
 	var mesh = new THREE.Mesh( geometry, material );
 	mesh.name = "mesh";

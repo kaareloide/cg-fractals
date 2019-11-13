@@ -24,5 +24,5 @@ void main() {
     }
     float x = (j == iter ? 0.0 : float(j)) / 100.0;
     vec3 color = texture2D(tex, vec2(x, 0.2)).rgb;
-    gl_FragColor = vec4(color, 1.0);
+    gl_FragColor = vec4(x, 0.2, 0.2, 1.0);
 }
