@@ -54,12 +54,12 @@ function changeScene(e) {
 
 function createScene1() {
 	var scene = new THREE.Scene();
-    var geometry = new THREE.PlaneBufferGeometry(5, 5, 1);
+    var geometry = new THREE.PlaneBufferGeometry(12, 12, 1);
     var uvCoord = new Float32Array([
-        0,1,
-        1,1,
-        0,0,
-        1,0
+		0,0,
+		2,0,
+		0,2,
+		2,2
     ]);
     geometry.addAttribute("uvCoord", new THREE.BufferAttribute(uvCoord, 2));
 	var material = createShaderMaterial(textures[0], VertexShaderBasic, FragShaderBasic);
@@ -111,7 +111,7 @@ function createShaderMaterial(texture, vertexShader, fragShader) {
             },
             center:{
                 type: 'v2',
-                value: new THREE.Vector2(0.0, 0.0)
+                value: new THREE.Vector2(1.5, 0.5)
             }
         },
         vertexShader: vertexShader,

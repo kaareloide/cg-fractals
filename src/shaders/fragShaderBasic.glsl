@@ -6,7 +6,7 @@ varying vec2 interpolatedUv;
 
 void main() {
     vec2 z, c;
-    const int iter = 20;
+    const int iter = 200;
 
     c.x = 1.3333 * (interpolatedUv.x - 0.5) * scale - center.x;
     c.y = (interpolatedUv.y - 0.5) * scale - center.y;
