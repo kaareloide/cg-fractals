@@ -17,7 +17,13 @@ module.exports = {
         use: {
           loader: 'babel-loader'
         }
-      }
+      },
+      {
+        test: /\.(glsl)$/,
+        use: [
+          'raw-loader',
+        ],
+      },
     ]
   },
   plugins: [

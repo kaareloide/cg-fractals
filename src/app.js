@@ -1,13 +1,17 @@
 import * as THREE from 'three';
 import $ from "jquery";
+import VertexShaderBasic from './shaders/vertexShaderBasic.glsl';
+import FragShaderBasic from './shaders/fragShaderBasic.glsl';
 
-var camera, currentScene, renderer;
-
+var camera, currentScene, renderer, vertexShader, fragShader;
+var textures = [];
 
 init();
-animate();
 
 function init() {
+    var loader = new THREE.TextureLoader();
+    loader.load("src/pal.png", onTextureLoaded);
+    
 	document.addEventListener("keypress", changeScene);
 
 	camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.01, 10 );
@@ -18,17 +22,14 @@ function init() {
 	renderer = new THREE.WebGLRenderer( { antialias: true } );
 	renderer.setSize( window.innerWidth, window.innerHeight );
 	document.body.appendChild( renderer.domElement );
-    
-    readGLSL("testFile.txt");
-
 }
 
 function animate() {
 
 	requestAnimationFrame( animate );
 	var mesh = currentScene.getObjectByName("mesh");
-	mesh.rotation.x += 0.01;
-	mesh.rotation.y += 0.02;
+	//mesh.rotation.x += 0.01;
+	//mesh.rotation.y += 0.02;
 
 	renderer.render( currentScene, camera );
 
@@ -53,18 +54,24 @@ function changeScene(e) {
 
 function createScene1() {
 	var scene = new THREE.Scene();
-	var geometry = new THREE.BoxGeometry(6, 6, 6);
-	var material = new THREE.MeshNormalMaterial();
+	var geometry = new THREE.PlaneGeometry(5, 5, 32);
+	var material = createShaderMaterial(textures[0], VertexShaderBasic, FragShaderBasic);
 	var mesh = new THREE.Mesh( geometry, material );
 	mesh.name = "mesh";
 	scene.add( mesh );
-    console.log(readGLSL("testFile.txt"));
 	return scene; 
 }
 
 function createScene2() {
 	var scene = new THREE.Scene();
 	var geometry = new THREE.SphereGeometry(5, 32, 32);
+    var uvCoord = new Float32Array([
+        0,1,
+        1,1,
+        0,0,
+        1,0
+    ]);
+    geometry.addAttribute("uvCoord", new THREE.BufferAttribute(uvCoord, 2));
 	var material = new THREE.MeshNormalMaterial();
 	var mesh = new THREE.Mesh( geometry, material );
 	mesh.name = "mesh";
@@ -82,24 +89,32 @@ function createScene3() {
 	return scene; 
 }
 
-function createShaderMaterial(texture) {
+function onTextureLoaded(texture) {
+    texture.magFilter = THREE.NearestFilter;
+    texture.wrapT = texture.wrapS = THREE.RepeatWrapping;
+    texture.repeat.set(2,2);
+    textures.push(texture);
+    animate();
+}
 			
+
+function createShaderMaterial(texture, vertexShader, fragShader) {
     return new THREE.ShaderMaterial({
-        //This time we'll use three.js built-in UV mapping in the shader.
-        //It is the same mapping you created in the previous task. :)
         uniforms: {
             texture: {
                 type: 't',
                 value: texture
+            },
+            scale:{
+                type: 'float',
+                value: 1
+            },
+            center:{
+                type: 'v2',
+                value: new THREE.Vector2(0.0, 0.0)
             }
         },
-        vertexShader: readGLSL("vertexShaderName.glsl"),
-        fragmentShader: readGLSL("fragShaderName.glsl")
-    });
-}
-
-function readGLSL(filename){
-    $.get("src/shaders/"+filename, function(data){
-       return data; 
+        vertexShader: vertexShader,
+        fragmentShader: fragShader
     });
 }
