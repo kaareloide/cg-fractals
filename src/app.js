@@ -7,6 +7,7 @@ import JuliaVertexShader from './shaders/juliaVertexShader.glsl';
 
 var camera, currentScene, renderer, vertexShader, fragShader;
 var textures = [];
+var scale = 5.0;
 
 init();
 
@@ -15,6 +16,11 @@ function init() {
     loader.load("src/pal.png", onTextureLoaded);
     
 	document.addEventListener("keypress", changeScene);
+
+	// firefox
+    document.addEventListener( 'DOMMouseScroll', onMouseWheel, false );
+    // chrome
+    document.addEventListener("mousewheel", onMouseWheel, false);
 
 	camera = new THREE.OrthographicCamera( window.innerHeight / - 2,  window.innerHeight / 2,  window.innerHeight / 2, window.innerHeight / - 2, 0.01, 1000 );
 	//camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.01, 10 );
@@ -36,6 +42,14 @@ function animate() {
 
 	renderer.render( currentScene, camera );
 
+}
+
+function onMouseWheel(e) {
+    var e = window.event || e;
+    var delta = Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)));
+    scale =  delta > 0 ? scale / 1.25 : scale / 0.75;
+    currentScene.children[0].material.uniforms.scale.value = scale;
+    return false;
 }
 
 // change scene with number keys 1,2,3
@@ -117,7 +131,7 @@ function createShaderMaterial(texture, vertexShader, fragShader, someConstant1 =
             },
             scale:{
                 type: 'float',
-                value: 5
+                value: scale
             },
             center:{
                 type: 'v2',
