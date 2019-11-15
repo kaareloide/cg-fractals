@@ -2,6 +2,8 @@ import * as THREE from 'three';
 import $ from "jquery";
 import VertexShaderBasic from './shaders/vertexShaderBasic.glsl';
 import FragShaderBasic from './shaders/fragShaderBasic.glsl';
+import JuliaFragShader from './shaders/juliaFragShader.glsl';
+import JuliaVertexShader from './shaders/juliaVertexShader.glsl';
 
 var camera, currentScene, renderer, vertexShader, fragShader;
 var textures = [];
@@ -16,7 +18,6 @@ function init() {
 
 	camera = new THREE.OrthographicCamera( window.innerHeight / - 2,  window.innerHeight / 2,  window.innerHeight / 2, window.innerHeight / - 2, 0.01, 1000 );
 	//camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.01, 10 );
-	console.log(window.innerHeight);
 	camera.position.z = 10;
 
 	currentScene = createScene1();
@@ -72,13 +73,13 @@ function createScene1() {
 }
 
 function createScene2() {
-	var scene = new THREE.Scene();
-	var geometry = new THREE.SphereGeometry(5, 32, 32);
-	var material = new THREE.MeshNormalMaterial();
-	var mesh = new THREE.Mesh( geometry, material );
-	mesh.name = "mesh";
-	scene.add( mesh );
-	return scene;
+    var scene = new THREE.Scene();
+    var geometry = new THREE.PlaneBufferGeometry(window.innerHeight, window.innerHeight, 1);
+    var material = createShaderMaterial(textures[0], JuliaVertexShader, JuliaFragShader);
+    var mesh = new THREE.Mesh( geometry, material );
+    mesh.name = "mesh";
+    scene.add( mesh );
+    return scene;
 }
 
 function createScene3() {
@@ -100,7 +101,7 @@ function onTextureLoaded(texture) {
 }
 			
 
-function createShaderMaterial(texture, vertexShader, fragShader) {
+function createShaderMaterial(texture, vertexShader, fragShader, someConstant = 0, iterations = 200) {
     return new THREE.ShaderMaterial({
         uniforms: {
             texture: {
@@ -114,6 +115,14 @@ function createShaderMaterial(texture, vertexShader, fragShader) {
             center:{
                 type: 'v2',
                 value: new THREE.Vector2(1.5, 0.5)
+            },
+            someConstant:{
+                type: 'float',
+                value: someConstant
+            },
+            iterations:{
+                type: 'int',
+                value: iterations
             }
         },
         vertexShader: vertexShader,
