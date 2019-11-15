@@ -60,9 +60,9 @@ function createScene1() {
     var geometry = new THREE.PlaneBufferGeometry(window.innerHeight, window.innerHeight, 1);
     var uvCoord = new Float32Array([
 		0,0,
-		2,0,
-		0,2,
-		2,2
+		1,0,
+		0,1,
+		1,1
     ]);
     geometry.addAttribute("uvCoord", new THREE.BufferAttribute(uvCoord, 2));
 	var material = createShaderMaterial(textures[0], VertexShaderBasic, FragShaderBasic);
@@ -75,7 +75,14 @@ function createScene1() {
 function createScene2() {
     var scene = new THREE.Scene();
     var geometry = new THREE.PlaneBufferGeometry(window.innerHeight, window.innerHeight, 1);
-    var material = createShaderMaterial(textures[0], JuliaVertexShader, JuliaFragShader);
+    var uvCoord = new Float32Array([
+        0,0,
+        1,0,
+        0,1,
+        1,1
+    ]);
+    geometry.addAttribute("uvCoord", new THREE.BufferAttribute(uvCoord, 2));
+    var material = createShaderMaterial(textures[0], JuliaVertexShader, JuliaFragShader, -0.8, 0.156);
     var mesh = new THREE.Mesh( geometry, material );
     mesh.name = "mesh";
     scene.add( mesh );
@@ -101,7 +108,7 @@ function onTextureLoaded(texture) {
 }
 			
 
-function createShaderMaterial(texture, vertexShader, fragShader, someConstant = 0, iterations = 200) {
+function createShaderMaterial(texture, vertexShader, fragShader, someConstant1 = 0, someConstant2 = 0, maxIterations = 200) {
     return new THREE.ShaderMaterial({
         uniforms: {
             texture: {
@@ -110,19 +117,23 @@ function createShaderMaterial(texture, vertexShader, fragShader, someConstant = 
             },
             scale:{
                 type: 'float',
-                value: 1.5
+                value: 5
             },
             center:{
                 type: 'v2',
-                value: new THREE.Vector2(1.5, 1.0)
+                value: new THREE.Vector2(0.5, 0.5)
             },
-            someConstant:{
+            someConstant1:{
                 type: 'float',
-                value: someConstant
+                value: someConstant1
             },
-            iterations:{
+            someConstant2:{
+                type: 'float',
+                value: someConstant2
+            },
+            maxIterations:{
                 type: 'int',
-                value: iterations
+                value: maxIterations
             }
         },
         vertexShader: vertexShader,

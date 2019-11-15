@@ -1,31 +1,39 @@
 uniform sampler2D tex;
 uniform vec2 center;
 uniform float scale;
-uniform int iterations;
+uniform int maxIterations;
 
 varying vec2 interpolatedUv;
 
 void main() {
+    vec3 color = vec3(0.0, 0.0, 0.0);
+    float t, x, y;
+
     vec2 z, c;
 
     c.x = (interpolatedUv.x - center.x) * scale;
     c.y = (interpolatedUv.y - center.y) * scale;
-    
-    int j = 0;
     z = c;
     for (int i = 0; i < 10000; i+= 1) {
-        float x = (z.x * z.x - z.y * z.y) + c.x;
-        float y = (z.y * z.x + z.x * z.y) + c.y;
-
-        if((x * x + y * y) > 4.0) break;
+        x = (z.x * z.x - z.y * z.y) + c.x;
+        y = (z.y * z.x + z.x * z.y) + c.y;
         z.x = x;
         z.y = y;
-        j = i;
 
-        if (i > iterations)
+        if((x * x + y * y) > 4.0) {
+            t = log(float(i + 1)) / log(float(maxIterations + 1)); // liidetud 1 kuna muidu võib tulla log(0)
+
+            color.x = t * 0.9 + (1.0 - t) * 0.1;
+            color.y = t * 0.9 + (1.0 - t) * 0.1;
+            color.z = t * 0.1 + (1.0 - t) * 0.9;
+
+            break;
+        }
+
+
+        if (i > maxIterations)
             break;
     }
-    float x = (j == iterations ? 0.0 : float(j)) / 100.0;
-    vec3 color = texture2D(tex, vec2(x, 0.2)).rgb;
-    gl_FragColor = vec4(x, 0.2, 0.2, 1.0);
+
+    gl_FragColor = vec4(color, 1.0);
 }
