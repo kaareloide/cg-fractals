@@ -110,11 +110,11 @@ function createShaderMaterial(texture, vertexShader, fragShader, someConstant = 
             },
             scale:{
                 type: 'float',
-                value: 1
+                value: 1.5
             },
             center:{
                 type: 'v2',
-                value: new THREE.Vector2(1.5, 0.5)
+                value: new THREE.Vector2(1.5, 1.0)
             },
             someConstant:{
                 type: 'float',

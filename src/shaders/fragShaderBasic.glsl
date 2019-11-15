@@ -8,8 +8,8 @@ varying vec2 interpolatedUv;
 void main() {
     vec2 z, c;
 
-    c.x = 1.3333 * (interpolatedUv.x - 0.5) * scale - center.x;
-    c.y = (interpolatedUv.y - 0.5) * scale - center.y;
+    c.x = (interpolatedUv.x - center.x) * scale;
+    c.y = (interpolatedUv.y - center.y) * scale;
     
     int j = 0;
     z = c;
