@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import $ from "jquery";
+import './styles/app.css';
 import VertexShaderBasic from './shaders/vertexShaderBasic.glsl';
 import FragShaderBasic from './shaders/fragShaderBasic.glsl';
 import JuliaFragShader from './shaders/juliaFragShader.glsl';
@@ -39,9 +40,6 @@ function animate() {
 
 	requestAnimationFrame( animate );
 	var mesh = currentScene.getObjectByName("mesh");
-	//mesh.rotation.x += 0.01;
-	//mesh.rotation.y += 0.02;
-
 	renderer.render( currentScene, camera );
 
 }
@@ -81,10 +79,44 @@ function createScene1() {
 		1,1
     ]);
     geometry.addAttribute("uvCoord", new THREE.BufferAttribute(uvCoord, 2));
-	var material = createShaderMaterial(textures[0], VertexShaderBasic, FragShaderBasic);
+	var material = createShaderMaterialMandelbrot(textures[0], VertexShaderBasic, FragShaderBasic);
 	var mesh = new THREE.Mesh( geometry, material );
 	mesh.name = "mesh";
-	scene.add( mesh );
+    scene.add( mesh );
+    clearSliders();
+    addSlider(
+        "colorR1",
+        0,
+        5,
+        0.9,
+        0.1,
+        function() {
+            mesh.material.uniforms.colorR1.value = this.value;
+        }
+    );
+
+    addSlider(
+        "colorG1",
+        0,
+        5,
+        0.9,
+        0.1,
+        function() {
+            mesh.material.uniforms.colorG1.value = this.value;
+        }
+    );
+
+    addSlider(
+        "colorB1",
+        0,
+        5,
+        0.1,
+        0.1,
+        function() {
+            mesh.material.uniforms.colorB1.value = this.value;
+        }
+    );
+
 	return scene; 
 }
 
@@ -100,30 +132,28 @@ function createScene2() {
         1,1
     ]);
     geometry.addAttribute("uvCoord", new THREE.BufferAttribute(uvCoord, 2));
-    var material = createShaderMaterial(textures[0], JuliaVertexShader, JuliaFragShader, startingConst1, startingConst2);
+    var material = createShaderMaterialJulia(textures[0], JuliaVertexShader, JuliaFragShader, startingConst1, startingConst2);
     var mesh = new THREE.Mesh( geometry, material );
     mesh.name = "mesh";
     scene.add( mesh );
-
+    clearSliders();
     addSlider(
-        "slider1",
-        -1,
-        1,
+        "constant 1",
+        -2,
+        2,
         -0.8,
         0.001,
-        mesh,
         function() {
             mesh.material.uniforms.someConstant1.value = this.value;
         }
     );
 
     addSlider(
-        "slider2",
+        "constant 2",
         -1,
         1,
         0.156,
         0.001,
-        mesh,
         function() {
             mesh.material.uniforms.someConstant2.value = this.value;
         }
@@ -133,6 +163,7 @@ function createScene2() {
 }
 
 function createScene3() {
+    clearSliders();
 	var scene = new THREE.Scene();
     var geometry = new THREE.PlaneBufferGeometry(window.innerHeight, window.innerHeight, 1);
     var uvCoord = new Float32Array([
@@ -157,7 +188,15 @@ function onTextureLoaded(texture) {
     animate();
 }
 
-function addSlider(name, min, max, value, step, mesh, oninput) {
+function clearSliders() {
+    var elements = document.getElementsByClassName("slider-wrapper");
+    console.log(elements)
+    while (elements[0]) elements[0].parentNode.removeChild(elements[0]);
+}
+
+function addSlider(name, min, max, value, step, oninput) {
+    var sliderWrapper = document.createElement("div");
+    var sliderTitle = document.createTextNode(name);
     var slider = document.createElement("input");
     slider.type = "range";
     slider.name = name;
@@ -166,11 +205,53 @@ function addSlider(name, min, max, value, step, mesh, oninput) {
     slider.value = value;
     slider.step = step;
     slider.oninput = oninput;
-    document.body.appendChild(slider);
+    slider.className = "slider";
+    sliderTitle.className = "slider-title";
+    sliderWrapper.className = "slider-wrapper"
+    sliderWrapper.appendChild(sliderTitle);
+    sliderWrapper.appendChild(slider);
+    document.getElementById("overlay").appendChild(sliderWrapper);
 }
 			
 
-function createShaderMaterial(texture, vertexShader, fragShader, someConstant1 = 0, someConstant2 = 0, maxIterations = 200) {
+function createShaderMaterialMandelbrot(texture, vertexShader, fragShader, maxIterations = 200) {
+    return new THREE.ShaderMaterial({
+        uniforms: {
+            texture: {
+                type: 't',
+                value: texture
+            },
+            scale:{
+                type: 'float',
+                value: scale
+            },
+            center:{
+                type: 'v2',
+                value: new THREE.Vector2(0.5, 0.5)
+            },
+            maxIterations:{
+                type: 'int',
+                value: maxIterations
+            },
+            colorR1:{
+                type: 'float',
+                value: 0.9
+            },
+            colorG1:{
+                type: 'float',
+                value: 0.9
+            },
+            colorB1:{
+                type: 'float',
+                value: 0.1
+            }
+        },
+        vertexShader: vertexShader,
+        fragmentShader: fragShader
+    });
+}
+
+function createShaderMaterialJulia(texture, vertexShader, fragShader, someConstant1 = 0, someConstant2 = 0, maxIterations = 200) {
     return new THREE.ShaderMaterial({
         uniforms: {
             texture: {

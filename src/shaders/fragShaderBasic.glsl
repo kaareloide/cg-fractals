@@ -2,6 +2,9 @@ uniform sampler2D tex;
 uniform vec2 center;
 uniform float scale;
 uniform int maxIterations;
+uniform float colorR1;
+uniform float colorG1;
+uniform float colorB1;
 
 varying vec2 interpolatedUv;
 
@@ -23,9 +26,9 @@ void main() {
         if((x * x + y * y) > 4.0) {
             t = log(float(i + 1)) / log(float(maxIterations + 1)); // liidetud 1 kuna muidu võib tulla log(0)
 
-            color.x = t * 0.9 + (1.0 - t) * 0.1;
-            color.y = t * 0.9 + (1.0 - t) * 0.1;
-            color.z = t * 0.1 + (1.0 - t) * 0.9;
+            color.x = t * colorR1 + (1.0 - t) * 0.8;
+            color.y = t * colorG1 + (1.0 - t) * 0.1;
+            color.z = t * colorB1 + (1.0 - t) * 0.9;
 
             break;
         }

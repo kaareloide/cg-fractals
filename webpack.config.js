@@ -24,11 +24,19 @@ module.exports = {
           'raw-loader',
         ],
       },
+      {
+        test:/\.css$/,
+        use: [
+          'style-loader',
+          'css-loader'
+        ]
+      },
     ]
   },
   plugins: [
     new HtmlWebpackPlugin({
-      title: 'Three.js App',
+      title: 'Fractals',
+      template: './src/index.html',
       filename: 'index.html'
     })
   ]
