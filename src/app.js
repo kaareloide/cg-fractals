@@ -4,6 +4,8 @@ import VertexShaderBasic from './shaders/vertexShaderBasic.glsl';
 import FragShaderBasic from './shaders/fragShaderBasic.glsl';
 import JuliaFragShader from './shaders/juliaFragShader.glsl';
 import JuliaVertexShader from './shaders/juliaVertexShader.glsl';
+import BuddhaFragShader from './shaders/buddhaFragShader.glsl';
+import BuddhaVertexShader from './shaders/buddhaVertexShader.glsl';
 
 var camera, currentScene, renderer, vertexShader, fragShader;
 var textures = [];
@@ -30,7 +32,7 @@ function init() {
 
 	renderer = new THREE.WebGLRenderer( { antialias: true } );
 	renderer.setSize( window.innerHeight, window.innerHeight );
-	document.body.appendChild( renderer.domElement );
+    document.body.appendChild( renderer.domElement );
 }
 
 function animate() {
@@ -56,7 +58,7 @@ function onMouseWheel(e) {
 function changeScene(e) {
 	switch (e.code) {
 		case "Digit1":
-			currentScene = createScene1();
+            currentScene = createScene1();
 			break;
 		case "Digit2":
 			currentScene = createScene2();
@@ -87,6 +89,8 @@ function createScene1() {
 }
 
 function createScene2() {
+    var startingConst1 = -0.8;
+    var startingConst2 = 0.156;
     var scene = new THREE.Scene();
     var geometry = new THREE.PlaneBufferGeometry(window.innerHeight, window.innerHeight, 1);
     var uvCoord = new Float32Array([
@@ -96,17 +100,49 @@ function createScene2() {
         1,1
     ]);
     geometry.addAttribute("uvCoord", new THREE.BufferAttribute(uvCoord, 2));
-    var material = createShaderMaterial(textures[0], JuliaVertexShader, JuliaFragShader, -0.8, 0.156);
+    var material = createShaderMaterial(textures[0], JuliaVertexShader, JuliaFragShader, startingConst1, startingConst2);
     var mesh = new THREE.Mesh( geometry, material );
     mesh.name = "mesh";
     scene.add( mesh );
+
+    addSlider(
+        "slider1",
+        -1,
+        1,
+        -0.8,
+        0.001,
+        mesh,
+        function() {
+            mesh.material.uniforms.someConstant1.value = this.value;
+        }
+    );
+
+    addSlider(
+        "slider2",
+        -1,
+        1,
+        0.156,
+        0.001,
+        mesh,
+        function() {
+            mesh.material.uniforms.someConstant2.value = this.value;
+        }
+    );
+
     return scene;
 }
 
 function createScene3() {
 	var scene = new THREE.Scene();
-	var geometry = new THREE.TorusGeometry(3, 1, 16, 100);
-	var material = new THREE.MeshNormalMaterial();
+    var geometry = new THREE.PlaneBufferGeometry(window.innerHeight, window.innerHeight, 1);
+    var uvCoord = new Float32Array([
+		0,0,
+		1,0,
+		0,1,
+		1,1
+    ]);
+    geometry.addAttribute("uvCoord", new THREE.BufferAttribute(uvCoord, 2));
+	var material = createShaderMaterial(textures[0], BuddhaVertexShader, BuddhaFragShader);
 	var mesh = new THREE.Mesh( geometry, material );
 	mesh.name = "mesh";
 	scene.add( mesh );
@@ -119,6 +155,18 @@ function onTextureLoaded(texture) {
     texture.repeat.set(2,2);
     textures.push(texture);
     animate();
+}
+
+function addSlider(name, min, max, value, step, mesh, oninput) {
+    var slider = document.createElement("input");
+    slider.type = "range";
+    slider.name = name;
+    slider.min = min;
+    slider.max = max;
+    slider.value = value;
+    slider.step = step;
+    slider.oninput = oninput;
+    document.body.appendChild(slider);
 }
 			
 
