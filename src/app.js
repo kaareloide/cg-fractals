@@ -1,10 +1,10 @@
 import * as THREE from 'three';
 import $ from "jquery";
 import './styles/app.css';
-//import './addons/EffectComposer.js';
-//import './addons/ShaderPass.js';
-//import './addons/RenderPass.js';
-//import './addons/BloomPass.js';
+import './addons/EffectComposer.js';
+import './addons/ShaderPass.js';
+import './addons/RenderPass.js';
+import './addons/BloomPass.js';
 import './addons/CopyShader.js';
 import VertexShaderBasic from './shaders/vertexShaderBasic.glsl';
 import FragShaderBasic from './shaders/fragShaderBasic.glsl';
