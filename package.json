@@ -18,8 +18,10 @@
     "file-loader": "^4.2.0",
     "html-webpack-plugin": "^3.2.0",
     "raw-loader": "^3.1.0",
+    "script-loader": "^0.7.2",
     "style-loader": "^1.0.0",
     "three.js": "^0.77.1",
+    "threejs-post-processing": "^1.0.0",
     "webpack": "^4.29.0",
     "webpack-cli": "^3.2.1",
     "webpack-dev-server": "^3.1.14"

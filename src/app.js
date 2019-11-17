@@ -1,6 +1,11 @@
 import * as THREE from 'three';
 import $ from "jquery";
 import './styles/app.css';
+//import './addons/EffectComposer.js';
+//import './addons/ShaderPass.js';
+//import './addons/RenderPass.js';
+//import './addons/BloomPass.js';
+//import './addons/CopyShader.js';
 import VertexShaderBasic from './shaders/vertexShaderBasic.glsl';
 import FragShaderBasic from './shaders/fragShaderBasic.glsl';
 import JuliaFragShader from './shaders/juliaFragShader.glsl';
@@ -8,7 +13,7 @@ import JuliaVertexShader from './shaders/juliaVertexShader.glsl';
 import BuddhaFragShader from './shaders/buddhaFragShader.glsl';
 import BuddhaVertexShader from './shaders/buddhaVertexShader.glsl';
 
-var camera, currentScene, renderer, vertexShader, fragShader;
+var camera, currentScene, renderer, composer, vertexShader, fragShader;
 var textures = [];
 var scale = 5.0;
 
@@ -30,18 +35,30 @@ function init() {
 	camera.position.z = 10;
 
 	currentScene = createScene1();
-
 	renderer = new THREE.WebGLRenderer( { antialias: true } );
 	renderer.setSize( window.innerHeight, window.innerHeight );
     document.body.appendChild( renderer.domElement );
 }
+/* TODO: MAKE THIS WORK BY GETTING addons FOLDER TO IMPORT CORRECTLY
+function composerAnimate(){
+    composer = new THREE.EffectComposer(renderer);
+    var renderPass = new RenderPass(currentScene, camera);
+    composer.addPass(renderPass);
+    var effectBloom = new BloomPass(1, 25, 5);
+    composer.addPass(effectBloom);
+    var renderModelPass = new RenderPass(currentScene, camera);
+    var copyEffect = new ShaderPass(CopyShader);
+    copyEffect.renderToScreen = true;
+    composer.addPass(copyEffect);
+    
+    composer.render();
+    requestAnimationFrame( animate );
+}*/
 
 function animate() {
-
-	requestAnimationFrame( animate );
+    requestAnimationFrame( animate );
 	var mesh = currentScene.getObjectByName("mesh");
 	renderer.render( currentScene, camera );
-
 }
 
 function onMouseWheel(e) {
