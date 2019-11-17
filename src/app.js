@@ -5,7 +5,7 @@ import './styles/app.css';
 //import './addons/ShaderPass.js';
 //import './addons/RenderPass.js';
 //import './addons/BloomPass.js';
-//import './addons/CopyShader.js';
+import './addons/CopyShader.js';
 import VertexShaderBasic from './shaders/vertexShaderBasic.glsl';
 import FragShaderBasic from './shaders/fragShaderBasic.glsl';
 import JuliaFragShader from './shaders/juliaFragShader.glsl';

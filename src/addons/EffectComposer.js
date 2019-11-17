@@ -2,6 +2,8 @@
  * @author alteredq / http://alteredqualia.com/
  */
 
+import * as THREE from 'three';
+
 THREE.EffectComposer = function ( renderer, renderTarget ) {
 
 	this.renderer = renderer;

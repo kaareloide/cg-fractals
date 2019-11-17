@@ -2,6 +2,8 @@
  * @author alteredq / http://alteredqualia.com/
  */
 
+import * as THREE from 'three';
+
 THREE.ShaderPass = function ( shader, textureID ) {
 
 	THREE.Pass.call( this );

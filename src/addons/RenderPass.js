@@ -2,6 +2,8 @@
  * @author alteredq / http://alteredqualia.com/
  */
 
+import * as THREE from 'three';
+
 THREE.RenderPass = function ( scene, camera, overrideMaterial, clearColor, clearAlpha ) {
 
 	THREE.Pass.call( this );

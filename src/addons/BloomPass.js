@@ -2,6 +2,8 @@
  * @author alteredq / http://alteredqualia.com/
  */
 
+import * as THREE from 'three';
+
 THREE.BloomPass = function ( strength, kernelSize, sigma, resolution ) {
 
 	THREE.Pass.call( this );
