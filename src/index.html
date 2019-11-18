@@ -1,12 +1,22 @@
 <!DOCTYPE html>
 <html>
-  <head>
+
+<head>
     <meta charset="UTF-8">
     <title><%= htmlWebpackPlugin.options.title %></title>
-  </head>
+</head>
 
-  <body>
+<body>
     <div id="overlay"></div>
     <my-app></my-app>
-  </body>
+    <script src="/src/addons/three.js"></script>
+    <!--<script src="/src/addons/three.module.js"></script>-->
+    <script src="/src/addons/EffectComposer.js"></script>
+    <script src="/src/addons/RenderPass.js"></script>
+    <script src="/src/addons/ShaderPass.js"></script>
+    <script src="/src/addons/LuminosityHighPassShader.js"></script>
+    <script src="/src/addons/UnrealBloomPass.js"></script>
+    <script src="/src/addons/CopyShader.js"></script>
+</body>
+
 </html>

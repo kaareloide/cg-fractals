@@ -1,11 +1,10 @@
-import * as THREE from 'three';
+//import * as THREE from './addons/three.module.js';
 import $ from "jquery";
 import './styles/app.css';
-//import './addons/EffectComposer.js';
-//import './addons/ShaderPass.js';
-//import './addons/RenderPass.js';
-//import './addons/BloomPass.js';
-import './addons/CopyShader.js';
+//import { EffectComposer } from './addons/EffectComposer.js';
+//import { RenderPass} from './addons/RenderPass.js';
+//import { UnrealBloomPass } from './addons/UnrealBloomPass.js';
+
 import VertexShaderBasic from './shaders/vertexShaderBasic.glsl';
 import FragShaderBasic from './shaders/fragShaderBasic.glsl';
 import JuliaFragShader from './shaders/juliaFragShader.glsl';
@@ -39,23 +38,22 @@ function init() {
 	renderer.setSize( window.innerHeight, window.innerHeight );
     document.body.appendChild( renderer.domElement );
 }
-/* TODO: MAKE THIS WORK BY GETTING addons FOLDER TO IMPORT CORRECTLY
-function composerAnimate(){
+// TODO: MAKE THIS WORK BY GETTING addons FOLDER TO IMPORT CORRECTLY
+function animate(){
     composer = new THREE.EffectComposer(renderer);
-    var renderPass = new RenderPass(currentScene, camera);
+    var renderPass = new THREE.RenderPass(currentScene, camera);
     composer.addPass(renderPass);
-    var effectBloom = new BloomPass(1, 25, 5);
+    var effectBloom = new THREE.UnrealBloomPass(new THREE.Vector2(window.innerHeight, window.innerHeight), 1.5, 0.4, 0.85);
+    effectBloom.threshold = 0;
+    effectBloom.strength = 0.5;
+    effectBloom.radius = 0;
     composer.addPass(effectBloom);
-    var renderModelPass = new RenderPass(currentScene, camera);
-    var copyEffect = new ShaderPass(CopyShader);
-    copyEffect.renderToScreen = true;
-    composer.addPass(copyEffect);
     
     composer.render();
     requestAnimationFrame( animate );
-}*/
+}
 
-function animate() {
+function oldAnimate() {
     requestAnimationFrame( animate );
 	var mesh = currentScene.getObjectByName("mesh");
 	renderer.render( currentScene, camera );
