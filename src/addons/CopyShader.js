@@ -5,8 +5,9 @@
  */
 
 import * as THREE from 'three';
+import { EffectComposer, Pass } from './EffectComposer';
 
-THREE.CopyShader = {
+var CopyShader = {
 
 	uniforms: {
 
@@ -46,3 +47,5 @@ THREE.CopyShader = {
 	].join( "\n" )
 
 };
+
+export { CopyShader };

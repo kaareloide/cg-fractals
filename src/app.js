@@ -1,11 +1,17 @@
 import * as THREE from 'three';
 import $ from "jquery";
 import './styles/app.css';
-import './addons/EffectComposer.js';
-import './addons/ShaderPass.js';
-import './addons/RenderPass.js';
-import './addons/BloomPass.js';
-import './addons/CopyShader.js';
+// import './addons/EffectComposer.js';
+// import './addons/ShaderPass.js';
+// import './addons/RenderPass.js';
+// import './addons/BloomPass.js';
+// import './addons/CopyShader.js';
+import { EffectComposer, Pass } from './addons/EffectComposer.js';
+import { ShaderPass } from './addons/ShaderPass.js';
+import { RenderPass } from './addons/RenderPass.js';
+import { BloomPass } from './addons/BloomPass.js';
+import { CopyShader } from './addons/CopyShader.js'; 
+import 'threejs-post-processing';
 import VertexShaderBasic from './shaders/vertexShaderBasic.glsl';
 import FragShaderBasic from './shaders/fragShaderBasic.glsl';
 import JuliaFragShader from './shaders/juliaFragShader.glsl';
@@ -39,9 +45,9 @@ function init() {
 	renderer.setSize( window.innerHeight, window.innerHeight );
     document.body.appendChild( renderer.domElement );
 }
-/* TODO: MAKE THIS WORK BY GETTING addons FOLDER TO IMPORT CORRECTLY
-function composerAnimate(){
-    composer = new THREE.EffectComposer(renderer);
+//  TODO: MAKE THIS WORK BY GETTING addons FOLDER TO IMPORT CORRECTLY
+function animate(){
+    composer = new EffectComposer(renderer);
     var renderPass = new RenderPass(currentScene, camera);
     composer.addPass(renderPass);
     var effectBloom = new BloomPass(1, 25, 5);
@@ -53,13 +59,13 @@ function composerAnimate(){
     
     composer.render();
     requestAnimationFrame( animate );
-}*/
-
-function animate() {
-    requestAnimationFrame( animate );
-	var mesh = currentScene.getObjectByName("mesh");
-	renderer.render( currentScene, camera );
 }
+
+// function animate() {
+//     requestAnimationFrame( animate );
+// 	var mesh = currentScene.getObjectByName("mesh");
+// 	renderer.render( currentScene, camera );
+// }
 
 function onMouseWheel(e) {
     var e = window.event || e;

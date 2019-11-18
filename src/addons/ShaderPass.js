@@ -3,10 +3,14 @@
  */
 
 import * as THREE from 'three';
+import { EffectComposer, Pass } from './EffectComposer';
+import { RenderPass } from './RenderPass';
+import { BloomPass } from './BloomPass';
+import { CopyShader } from './CopyShader'; 
+import 'threejs-post-processing';
+var ShaderPass = function ( shader, textureID ) {
 
-THREE.ShaderPass = function ( shader, textureID ) {
-
-	THREE.Pass.call( this );
+	Pass.call( this );
 
 	this.textureID = ( textureID !== undefined ) ? textureID : "tDiffuse";
 
@@ -31,13 +35,13 @@ THREE.ShaderPass = function ( shader, textureID ) {
 
 	}
 
-	this.fsQuad = new THREE.Pass.FullScreenQuad( this.material );
+	this.fsQuad = new Pass.FullScreenQuad( this.material );
 
 };
 
-THREE.ShaderPass.prototype = Object.assign( Object.create( THREE.Pass.prototype ), {
+ShaderPass.prototype = Object.assign( Object.create( Pass.prototype ), {
 
-	constructor: THREE.ShaderPass,
+	constructor: ShaderPass,
 
 	render: function ( renderer, writeBuffer, readBuffer /*, deltaTime, maskActive */ ) {
 
@@ -66,3 +70,5 @@ THREE.ShaderPass.prototype = Object.assign( Object.create( THREE.Pass.prototype 
 	}
 
 } );
+
+export { ShaderPass };

@@ -3,8 +3,13 @@
  */
 
 import * as THREE from 'three';
+import { ShaderPass } from './ShaderPass'
+import { RenderPass } from './RenderPass';
+import { BloomPass } from './BloomPass';
+import { CopyShader } from './CopyShader'; 
+import 'threejs-post-processing';
 
-THREE.EffectComposer = function ( renderer, renderTarget ) {
+var EffectComposer = function ( renderer, renderTarget ) {
 
 	this.renderer = renderer;
 
@@ -46,25 +51,25 @@ THREE.EffectComposer = function ( renderer, renderTarget ) {
 
 	// dependencies
 
-	if ( THREE.CopyShader === undefined ) {
+	if ( CopyShader === undefined ) {
 
 		console.error( 'THREE.EffectComposer relies on THREE.CopyShader' );
 
 	}
 
-	if ( THREE.ShaderPass === undefined ) {
+	if ( ShaderPass === undefined ) {
 
 		console.error( 'THREE.EffectComposer relies on THREE.ShaderPass' );
 
 	}
 
-	this.copyPass = new THREE.ShaderPass( THREE.CopyShader );
+	this.copyPass = new ShaderPass( CopyShader );
 
 	this.clock = new THREE.Clock();
 
 };
 
-Object.assign( THREE.EffectComposer.prototype, {
+Object.assign( EffectComposer.prototype, {
 
 	swapBuffers: function () {
 
@@ -223,7 +228,7 @@ Object.assign( THREE.EffectComposer.prototype, {
 } );
 
 
-THREE.Pass = function () {
+var Pass = function () {
 
 	// if set to true, the pass is processed by the composer
 	this.enabled = true;
@@ -239,7 +244,7 @@ THREE.Pass = function () {
 
 };
 
-Object.assign( THREE.Pass.prototype, {
+Object.assign( Pass.prototype, {
 
 	setSize: function ( /* width, height */ ) {},
 
@@ -252,7 +257,7 @@ Object.assign( THREE.Pass.prototype, {
 } );
 
 // Helper for passes that need to fill the viewport with a single quad.
-THREE.Pass.FullScreenQuad = ( function () {
+Pass.FullScreenQuad = ( function () {
 
 	var camera = new THREE.OrthographicCamera( - 1, 1, 1, - 1, 0, 1 );
 	var geometry = new THREE.PlaneBufferGeometry( 2, 2 );
@@ -292,3 +297,5 @@ THREE.Pass.FullScreenQuad = ( function () {
 	return FullScreenQuad;
 
 } )();
+
+export { EffectComposer , Pass };
