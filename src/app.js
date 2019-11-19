@@ -6,11 +6,12 @@ import './styles/app.css';
 // import './addons/RenderPass.js';
 // import './addons/BloomPass.js';
 // import './addons/CopyShader.js';
-import { EffectComposer, Pass } from './addons/EffectComposer.js';
+import { EffectComposer } from './addons/EffectComposer.js';
 import { ShaderPass } from './addons/ShaderPass.js';
 import { RenderPass } from './addons/RenderPass.js';
 import { BloomPass } from './addons/BloomPass.js';
 import { CopyShader } from './addons/CopyShader.js'; 
+
 import 'threejs-post-processing';
 import VertexShaderBasic from './shaders/vertexShaderBasic.glsl';
 import FragShaderBasic from './shaders/fragShaderBasic.glsl';
@@ -42,7 +43,7 @@ function init() {
 
 	currentScene = createScene1();
 	renderer = new THREE.WebGLRenderer( { antialias: true } );
-	renderer.setSize( window.innerHeight, window.innerHeight );
+    renderer.setSize( window.innerHeight, window.innerHeight );
     document.body.appendChild( renderer.domElement );
 }
 //  TODO: MAKE THIS WORK BY GETTING addons FOLDER TO IMPORT CORRECTLY

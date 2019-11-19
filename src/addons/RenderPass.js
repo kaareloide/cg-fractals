@@ -2,14 +2,13 @@
  * @author alteredq / http://alteredqualia.com/
  */
 import * as THREE from 'three';
-import { EffectComposer, Pass } from './EffectComposer';
-import { ShaderPass } from './ShaderPass';
-import { BloomPass } from './BloomPass';
-import { CopyShader } from './CopyShader'; 
+import { Pass } from './Pass';
 import 'threejs-post-processing';
 
-var RenderPass = function ( scene, camera, overrideMaterial, clearColor, clearAlpha ) {
 
+
+var RenderPass = function ( scene, camera, overrideMaterial, clearColor, clearAlpha ) {
+	console.log(Pass)
 	Pass.call( this );
 
 	this.scene = scene;

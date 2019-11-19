@@ -4,8 +4,6 @@
  * Full-screen textured quad shader
  */
 
-import * as THREE from 'three';
-import { EffectComposer, Pass } from './EffectComposer';
 
 var CopyShader = {
 

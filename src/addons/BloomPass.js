@@ -3,11 +3,10 @@
  */
 
 import * as THREE from 'three';
-import { EffectComposer, Pass } from './EffectComposer';
-import { ShaderPass } from './ShaderPass';
-import { RenderPass } from './RenderPass';
-import { CopyShader } from './CopyShader'; 
 import 'threejs-post-processing';
+import { ConvolutionShader } from './ConvolutionShader';
+import { CopyShader } from './CopyShader'; 
+import { Pass } from './Pass';
 
 var BloomPass = function ( strength, kernelSize, sigma, resolution ) {
 
@@ -50,15 +49,15 @@ var BloomPass = function ( strength, kernelSize, sigma, resolution ) {
 
 	// convolution material
 
-	if ( THREE.ConvolutionShader === undefined )
+	if ( ConvolutionShader === undefined )
 		console.error( "THREE.BloomPass relies on THREE.ConvolutionShader" );
 
-	var convolutionShader = THREE.ConvolutionShader;
+	var convolutionShader = ConvolutionShader;
 
 	this.convolutionUniforms = THREE.UniformsUtils.clone( convolutionShader.uniforms );
 
 	this.convolutionUniforms[ "uImageIncrement" ].value = BloomPass.blurX;
-	this.convolutionUniforms[ "cKernel" ].value = THREE.ConvolutionShader.buildKernel( sigma );
+	this.convolutionUniforms[ "cKernel" ].value = ConvolutionShader.buildKernel( sigma );
 
 	this.materialConvolution = new THREE.ShaderMaterial( {
 

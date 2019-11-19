@@ -3,10 +3,7 @@
  */
 
 import * as THREE from 'three';
-import { EffectComposer, Pass } from './EffectComposer';
-import { RenderPass } from './RenderPass';
-import { BloomPass } from './BloomPass';
-import { CopyShader } from './CopyShader'; 
+import { Pass } from './Pass';
 import 'threejs-post-processing';
 var ShaderPass = function ( shader, textureID ) {
 
