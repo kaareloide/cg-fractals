@@ -15,35 +15,39 @@ import BuddhaVertexShader from './shaders/buddhaVertexShader.glsl';
 var camera, currentScene, renderer, composer, vertexShader, fragShader;
 var textures = [];
 var scale = 5.0;
+var center = new THREE.Vector2(0.5, 0.5);
+var renderSize;
+var sceneSize = 1;
 
 init();
 
 function init() {
-    var loader = new THREE.TextureLoader();
-    loader.load("src/pal.png", onTextureLoaded);
-    
 	document.addEventListener("keypress", changeScene);
 
-	// firefox
-    document.addEventListener( 'DOMMouseScroll', onMouseWheel, false );
-    // chrome
-    document.addEventListener("mousewheel", onMouseWheel, false);
+    document.addEventListener( 'DOMMouseScroll', onMouseWheel, false );	// firefox
+    document.addEventListener("mousewheel", onMouseWheel, false);    // chrome
 
-	camera = new THREE.OrthographicCamera( window.innerHeight / - 2,  window.innerHeight / 2,  window.innerHeight / 2, window.innerHeight / - 2, 0.01, 1000 );
-	//camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.01, 10 );
+    camera = new THREE.OrthographicCamera( sceneSize / - 2,  sceneSize / 2,  sceneSize / 2, sceneSize / - 2, 0.01, 1000 );
 	camera.position.z = 10;
 
-	currentScene = createScene1();
+    currentScene = createScene1();
 	renderer = new THREE.WebGLRenderer( { antialias: true } );
-	renderer.setSize( window.innerHeight, window.innerHeight );
+
+    renderSize = window.innerHeight < window.innerWidth? window.innerHeight : window.innerWidth;
+    renderer.setSize( renderSize, renderSize );
     document.body.appendChild( renderer.domElement );
+
+    oldAnimate();
 }
+
 // TODO: MAKE THIS WORK BY GETTING addons FOLDER TO IMPORT CORRECTLY
 function animate(){
+    updateRendererSize();
+
     composer = new THREE.EffectComposer(renderer);
     var renderPass = new THREE.RenderPass(currentScene, camera);
     composer.addPass(renderPass);
-    var effectBloom = new THREE.UnrealBloomPass(new THREE.Vector2(window.innerHeight, window.innerHeight), 1.5, 0.4, 0.85);
+    var effectBloom = new THREE.UnrealBloomPass(new THREE.Vector2(sceneSize, sceneSize), 1.5, 0.4, 0.85);
     effectBloom.threshold = 0;
     effectBloom.strength = 0.5;
     effectBloom.radius = 0;
@@ -54,14 +58,25 @@ function animate(){
 }
 
 function oldAnimate() {
-    requestAnimationFrame( animate );
-	var mesh = currentScene.getObjectByName("mesh");
-	renderer.render( currentScene, camera );
+    // update renderer size if window side changed
+    updateRendererSize();
+
+    requestAnimationFrame( oldAnimate );
+    renderer.render( currentScene, camera );
+}
+
+function updateRendererSize() {
+    var windowSize = window.innerHeight < window.innerWidth? window.innerHeight : window.innerWidth;
+    if (windowSize != renderSize) {
+        renderSize = windowSize;
+        renderer.setSize(renderSize, renderSize);
+    }
 }
 
 function onMouseWheel(e) {
     var e = window.event || e;
     var delta = Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)));
+
     scale =  delta > 0 ? scale / 1.25 : scale / 0.75;
     currentScene.children[0].material.uniforms.scale.value = scale;
     return false;
@@ -69,7 +84,9 @@ function onMouseWheel(e) {
 
 // change scene with number keys 1,2,3
 function changeScene(e) {
-	switch (e.code) {
+    scale = 5.0;
+    center = new THREE.Vector2(0.5, 0.5);
+    switch (e.code) {
 		case "Digit1":
             currentScene = createScene1();
 			break;
@@ -81,12 +98,11 @@ function changeScene(e) {
 			break;
 	}
 	console.log(e.code);
-
 }
 
 function createScene1() {
 	var scene = new THREE.Scene();
-    var geometry = new THREE.PlaneBufferGeometry(window.innerHeight, window.innerHeight, 1);
+    var geometry = new THREE.PlaneBufferGeometry(sceneSize, sceneSize, 1);
     var uvCoord = new Float32Array([
 		0,0,
 		1,0,
@@ -139,7 +155,7 @@ function createScene2() {
     var startingConst1 = -0.8;
     var startingConst2 = 0.156;
     var scene = new THREE.Scene();
-    var geometry = new THREE.PlaneBufferGeometry(window.innerHeight, window.innerHeight, 1);
+    var geometry = new THREE.PlaneBufferGeometry(sceneSize, sceneSize, 1);
     var uvCoord = new Float32Array([
         0,0,
         1,0,
@@ -180,7 +196,7 @@ function createScene2() {
 function createScene3() {
     clearSliders();
 	var scene = new THREE.Scene();
-    var geometry = new THREE.PlaneBufferGeometry(window.innerHeight, window.innerHeight, 1);
+    var geometry = new THREE.PlaneBufferGeometry(sceneSize, sceneSize, 1);
     var uvCoord = new Float32Array([
 		0,0,
 		1,0,
@@ -195,17 +211,9 @@ function createScene3() {
 	return scene; 
 }
 
-function onTextureLoaded(texture) {
-    texture.magFilter = THREE.NearestFilter;
-    texture.wrapT = texture.wrapS = THREE.RepeatWrapping;
-    texture.repeat.set(2,2);
-    textures.push(texture);
-    animate();
-}
-
 function clearSliders() {
     var elements = document.getElementsByClassName("slider-wrapper");
-    console.log(elements)
+    console.log(elements);
     while (elements[0]) elements[0].parentNode.removeChild(elements[0]);
 }
 
@@ -222,7 +230,7 @@ function addSlider(name, min, max, value, step, oninput) {
     slider.oninput = oninput;
     slider.className = "slider";
     sliderTitle.className = "slider-title";
-    sliderWrapper.className = "slider-wrapper"
+    sliderWrapper.className = "slider-wrapper";
     sliderWrapper.appendChild(sliderTitle);
     sliderWrapper.appendChild(slider);
     document.getElementById("overlay").appendChild(sliderWrapper);
@@ -242,7 +250,7 @@ function createShaderMaterialMandelbrot(texture, vertexShader, fragShader, maxIt
             },
             center:{
                 type: 'v2',
-                value: new THREE.Vector2(0.5, 0.5)
+                value: center
             },
             maxIterations:{
                 type: 'int',
@@ -279,7 +287,7 @@ function createShaderMaterialJulia(texture, vertexShader, fragShader, someConsta
             },
             center:{
                 type: 'v2',
-                value: new THREE.Vector2(0.5, 0.5)
+                value: center
             },
             someConstant1:{
                 type: 'float',
