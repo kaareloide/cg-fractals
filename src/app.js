@@ -15,6 +15,7 @@ import BuddhaVertexShader from './shaders/buddhaVertexShader.glsl';
 var camera, currentScene, renderer, composer, vertexShader, fragShader;
 var textures = [];
 var scale = 5.0;
+var maxIterations = Math.min(1000 / scale, 2000);
 var center = new THREE.Vector2(0.5, 0.5);
 var renderSize;
 var sceneSize = 1;
@@ -62,23 +63,73 @@ function oldAnimate() {
 }
 
 function onWindowResize() {
-    renderSize = window.innerHeight < window.innerWidth? window.innerHeight : window.innerWidth;;
+    renderSize = window.innerHeight < window.innerWidth? window.innerHeight : window.innerWidth;
     renderer.setSize(renderSize, renderSize);
 }
 
 function onMouseWheel(e) {
     var e = window.event || e;
+
+    // kui mouse event toimus stseenist väljas siis ei zoomi ega uuenda keskkohta
+    // kontroll x-koordinaadi järgi
+    if (window.innerWidth > renderSize) {
+        var windowSideSize = (window.innerWidth - renderSize) / 2;
+        if (e.clientX < windowSideSize || e.clientX > windowSideSize + renderSize) {
+            return false;
+        }
+    }
+    // kontroll y-koordinaadi järgi
+    if (window.innerHeight > renderSize) {
+        var windowSideSize = (window.innerHeight - renderSize) / 2;
+        if (e.clientY < windowSideSize || e.clientY > windowSideSize + renderSize) {
+            return false;
+        }
+    }
+
+    var scaleSize = 1.1;
+    var scaleBefore = scale;
+
     // zoom
     var delta = Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)));
-    scale =  delta > 0 ? scale / 1.15 : scale / 0.85;
+    scale =  delta > 0 ? scale / scaleSize : scale * scaleSize;
     currentScene.children[0].material.uniforms.scale.value = scale;
+
+    // center update
+    // new x
+    if (window.innerWidth > renderSize) {
+        var windowSideSize = (window.innerWidth - renderSize) / 2;
+        var x = (e.clientX - windowSideSize) / renderSize;
+    } else {
+        var x = e.clientX / window.innerWidth;
+    }
+    x = (scale * x - (scaleBefore * x + scaleBefore * (0 - center.x))) / scale;
+
+    // new y
+    if (window.innerHeight > renderSize) {
+        var windowSideSize = (window.innerHeight - renderSize) / 2;
+        var y = (e.clientY - windowSideSize) / renderSize;
+    } else {
+        var y = e.clientY / window.innerHeight;
+    }
+    y = (scale * y - (scaleBefore * y + scaleBefore * (0 - center.y))) / scale;
+
+    center = new THREE.Vector2(x, y);
+    currentScene.children[0].material.uniforms.center.value = center;
+
+    // max iterations update
+    maxIterations = Math.min(1000 / scale, 2000);
+    currentScene.children[0].material.uniforms.maxIterations.value = maxIterations;
+    console.log(maxIterations);
+
     return false;
 }
 
 // change scene with number keys 1,2,3
 function changeScene(e) {
+    // reset scale and center
     scale = 5.0;
     center = new THREE.Vector2(0.5, 0.5);
+
     switch (e.code) {
 		case "Digit1":
             currentScene = createScene1();
@@ -230,7 +281,7 @@ function addSlider(name, min, max, value, step, oninput) {
 }
 			
 
-function createShaderMaterialMandelbrot(texture, vertexShader, fragShader, maxIterations = 200) {
+function createShaderMaterialMandelbrot(texture, vertexShader, fragShader) {
     return new THREE.ShaderMaterial({
         uniforms: {
             texture: {
@@ -267,7 +318,7 @@ function createShaderMaterialMandelbrot(texture, vertexShader, fragShader, maxIt
     });
 }
 
-function createShaderMaterialJulia(texture, vertexShader, fragShader, someConstant1 = 0, someConstant2 = 0, maxIterations = 200) {
+function createShaderMaterialJulia(texture, vertexShader, fragShader, someConstant1 = 0, someConstant2 = 0) {
     return new THREE.ShaderMaterial({
         uniforms: {
             texture: {
