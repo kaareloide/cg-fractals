@@ -26,6 +26,7 @@ function init() {
 
     document.addEventListener( 'DOMMouseScroll', onMouseWheel, false );	// firefox
     document.addEventListener("mousewheel", onMouseWheel, false);    // chrome
+    window.addEventListener("resize", onWindowResize);    // if window size changed
 
     camera = new THREE.OrthographicCamera( sceneSize / - 2,  sceneSize / 2,  sceneSize / 2, sceneSize / - 2, 0.01, 1000 );
 	camera.position.z = 10;
@@ -42,8 +43,6 @@ function init() {
 
 // TODO: MAKE THIS WORK BY GETTING addons FOLDER TO IMPORT CORRECTLY
 function animate(){
-    updateRendererSize();
-
     composer = new THREE.EffectComposer(renderer);
     var renderPass = new THREE.RenderPass(currentScene, camera);
     composer.addPass(renderPass);
@@ -58,26 +57,20 @@ function animate(){
 }
 
 function oldAnimate() {
-    // update renderer size if window side changed
-    updateRendererSize();
-
     requestAnimationFrame( oldAnimate );
     renderer.render( currentScene, camera );
 }
 
-function updateRendererSize() {
-    var windowSize = window.innerHeight < window.innerWidth? window.innerHeight : window.innerWidth;
-    if (windowSize != renderSize) {
-        renderSize = windowSize;
-        renderer.setSize(renderSize, renderSize);
-    }
+function onWindowResize() {
+    renderSize = window.innerHeight < window.innerWidth? window.innerHeight : window.innerWidth;;
+    renderer.setSize(renderSize, renderSize);
 }
 
 function onMouseWheel(e) {
     var e = window.event || e;
+    // zoom
     var delta = Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)));
-
-    scale =  delta > 0 ? scale / 1.25 : scale / 0.75;
+    scale =  delta > 0 ? scale / 1.15 : scale / 0.85;
     currentScene.children[0].material.uniforms.scale.value = scale;
     return false;
 }
