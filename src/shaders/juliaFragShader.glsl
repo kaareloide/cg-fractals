@@ -32,7 +32,7 @@ void main() {
 
                 color.x = t * 0.7 + (1.0 - t) * 0.1;
                 color.y = t * 0.3 + (1.0 - t) * 0.1;
-                color.z = t  + (1.0 - t) * 0.1;
+                color.z = t * 0.1  + (1.0 - t) * 0.1;
                 break;
             }
         }
@@ -46,9 +46,9 @@ void main() {
             if (absValue > 4.0) {
                 t = float(i) + 1.0 - log(log2(absValue));
 
-                color.x = mod(t, 1.0);
-                color.y = mod(t, 1.0);
-                color.z = mod(t, 1.0);
+                color.x = mod(t, 0.9);
+                color.y = mod(t, 0.5);
+                color.z = 0.1;
 
                 break;
             }
