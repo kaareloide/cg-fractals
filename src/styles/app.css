@@ -10,6 +10,11 @@
   transition: opacity .2s;
 }
 
+.dropdown-wrapper {
+  background-color: white;
+  text-align: center;
+}
+
 .slider-wrapper {
   background-color: white;
   text-align: center;

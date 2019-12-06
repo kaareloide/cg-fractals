@@ -52,7 +52,7 @@ function animate(){
     effectBloom.strength = 0.5;
     effectBloom.radius = 0;
     composer.addPass(effectBloom);
-    
+
     composer.render();
     requestAnimationFrame( animate );
 }
@@ -97,10 +97,10 @@ function onMouseWheel(e) {
     // center update
     // new x
     if (window.innerWidth > renderSize) {
-        var windowSideSize = (window.innerWidth - renderSize) / 2;
+        var windowSideSize = (window.outerWidth - renderSize) / 2;
         var x = (e.clientX - windowSideSize) / renderSize;
     } else {
-        var x = e.clientX / window.innerWidth;
+        var x = e.clientX / window.outerWidth;
     }
     x = (scale * x - (scaleBefore * x + scaleBefore * (0 - center.x))) / scale;
 
@@ -158,7 +158,7 @@ function createScene1() {
 	var mesh = new THREE.Mesh( geometry, material );
 	mesh.name = "mesh";
     scene.add( mesh );
-    clearSliders();
+    clearOverlay();
     addSlider(
         "colorR1",
         0,
@@ -192,12 +192,12 @@ function createScene1() {
         }
     );
 
-	return scene; 
+	return scene;
 }
 
 function createScene2() {
-    var startingConst1 = -0.8;
-    var startingConst2 = 0.156;
+    var realConstant = -0.8;
+    var imaginaryConstant = 0.156;
     var scene = new THREE.Scene();
     var geometry = new THREE.PlaneBufferGeometry(sceneSize, sceneSize, 1);
     var uvCoord = new Float32Array([
@@ -207,30 +207,39 @@ function createScene2() {
         1,1
     ]);
     geometry.addAttribute("uvCoord", new THREE.BufferAttribute(uvCoord, 2));
-    var material = createShaderMaterialJulia(textures[0], JuliaVertexShader, JuliaFragShader, startingConst1, startingConst2);
+    var material = createShaderMaterialJulia(textures[0], JuliaVertexShader, JuliaFragShader, realConstant, imaginaryConstant);
     var mesh = new THREE.Mesh( geometry, material );
     mesh.name = "mesh";
     scene.add( mesh );
-    clearSliders();
+    clearOverlay();
     addSlider(
-        "constant 1",
+        "Real constant",
         -2,
         2,
         -0.8,
         0.001,
         function() {
-            mesh.material.uniforms.someConstant1.value = this.value;
+            mesh.material.uniforms.realConstant.value = this.value;
         }
     );
 
     addSlider(
-        "constant 2",
+        "Imag constant",
         -1,
         1,
         0.156,
         0.001,
         function() {
-            mesh.material.uniforms.someConstant2.value = this.value;
+            mesh.material.uniforms.imaginaryConstant.value = this.value;
+        }
+    );
+
+    addDropdown(
+        "Julia set function",
+        ["Z*Z+C", "Z*Z*Z+C"],
+        function() {
+            console.log(this.value);
+            mesh.material.uniforms.functionExponent.value = this.value;
         }
     );
 
@@ -238,7 +247,7 @@ function createScene2() {
 }
 
 function createScene3() {
-    clearSliders();
+    clearOverlay();
 	var scene = new THREE.Scene();
     var geometry = new THREE.PlaneBufferGeometry(sceneSize, sceneSize, 1);
     var uvCoord = new Float32Array([
@@ -252,11 +261,17 @@ function createScene3() {
 	var mesh = new THREE.Mesh( geometry, material );
 	mesh.name = "mesh";
 	scene.add( mesh );
-	return scene; 
+	return scene;
 }
 
-function clearSliders() {
+function clearOverlay() {
+    // sliders
     var elements = document.getElementsByClassName("slider-wrapper");
+    console.log(elements);
+    while (elements[0]) elements[0].parentNode.removeChild(elements[0]);
+
+    // dropdowns
+    elements = document.getElementsByClassName("dropdown-wrapper");
     console.log(elements);
     while (elements[0]) elements[0].parentNode.removeChild(elements[0]);
 }
@@ -277,9 +292,34 @@ function addSlider(name, min, max, value, step, oninput) {
     sliderWrapper.className = "slider-wrapper";
     sliderWrapper.appendChild(sliderTitle);
     sliderWrapper.appendChild(slider);
-    document.getElementById("overlay").appendChild(sliderWrapper);
+    document.getElementById("sliders").appendChild(sliderWrapper);
 }
-			
+
+function addDropdown(name, items, onChange) {
+    var dropdownWrapper = document.createElement("div");
+    var dropdownTitle = document.createTextNode(name);
+    var dropdown = document.createElement("select");
+    dropdown.name = name;
+
+    items.forEach(
+        (item, index) => {
+            var option = document.createElement("option");
+            option.value = index;
+            option.text = item;
+            dropdown.appendChild(option);
+        }
+    );
+
+    dropdown.onchange = onChange;
+    dropdown.className = "dropdown";
+
+    dropdownTitle.className = "dropdown-title";
+    dropdownWrapper.className = "dropdown-wrapper";
+    dropdownWrapper.appendChild(dropdownTitle);
+    dropdownWrapper.appendChild(dropdown);
+    document.getElementById("dropdowns").appendChild(dropdownWrapper);
+}
+
 
 function createShaderMaterialMandelbrot(texture, vertexShader, fragShader) {
     return new THREE.ShaderMaterial({
@@ -318,7 +358,7 @@ function createShaderMaterialMandelbrot(texture, vertexShader, fragShader) {
     });
 }
 
-function createShaderMaterialJulia(texture, vertexShader, fragShader, someConstant1 = 0, someConstant2 = 0) {
+function createShaderMaterialJulia(texture, vertexShader, fragShader, realConstant, imaginaryConstant, functionExponent) {
     return new THREE.ShaderMaterial({
         uniforms: {
             texture: {
@@ -333,17 +373,21 @@ function createShaderMaterialJulia(texture, vertexShader, fragShader, someConsta
                 type: 'v2',
                 value: center
             },
-            someConstant1:{
+            realConstant:{
                 type: 'float',
-                value: someConstant1
+                value: realConstant
             },
-            someConstant2:{
+            imaginaryConstant:{
                 type: 'float',
-                value: someConstant2
+                value: imaginaryConstant
             },
             maxIterations:{
                 type: 'int',
                 value: maxIterations
+            },
+            functionExponent:{
+                type: 'int',
+                value: functionExponent
             }
         },
         vertexShader: vertexShader,
