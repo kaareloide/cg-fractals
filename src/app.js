@@ -267,6 +267,23 @@ function zoomAnimation(centerX, centerY) {
     }
 }
 
+function constantChangeAnimation(valueFrom, valueTo, realFunction, imagFunction, mesh) {
+    stopAnimation();
+    resetSettings();
+    buttonAnimation = setInterval(frame, 5);
+
+    var changingValue = valueFrom;
+    var stepSize = (valueTo - valueFrom)  / 5000;
+
+    function frame() {
+        changingValue += stepSize;
+        changingValue = changingValue % valueTo;
+
+        mesh.material.uniforms.realConstant.value = realFunction(changingValue);
+        mesh.material.uniforms.imaginaryConstant.value = imagFunction(changingValue);
+    }
+}
+
 function createMandelbrotScene() {
     var scene = new THREE.Scene();
     var mesh = createPlaneMesh(VertexShader, MandelbrotFragShader);
@@ -290,7 +307,7 @@ function createMandelbrotScene() {
         }
     );
 
-    addButton("Animate",
+    addButton("Zoom",
         zoomAnimation,
         0.13798, 0.5, scene
     );
@@ -317,9 +334,17 @@ function createJuliaSet2Scene() {
         }
     );
 
-    addButton("Animate",
+    addButton("Zoom",
         zoomAnimation,
         0.555, 0.485, scene
+    );
+
+    addButton("Animate",
+        constantChangeAnimation,
+        0, 2*Math.PI,
+        function(x) {return 0.7885 * Math.cos(x)},
+        function(x) {return 0.7885 * Math.sin(x)},
+        mesh
     );
 
     addDropdown("Constant presets", ["-1.201+0.156i", "-0.8+0.156i", "-0.7269+0.1889i"],
@@ -362,7 +387,7 @@ function createJuliaSet3Scene() {
         }
     );
 
-    addButton("Animate",
+    addButton("Zoom",
         zoomAnimation,
         0.69, 0.45, scene
     );
