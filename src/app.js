@@ -1,10 +1,9 @@
-//import * as THREE from './addons/three.module.js';
 import $ from "jquery";
 import './styles/app.css';
-//import { EffectComposer } from './addons/EffectComposer.js';
-//import { RenderPass} from './addons/RenderPass.js';
-//import { UnrealBloomPass } from './addons/UnrealBloomPass.js';
-
+import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass';
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer';
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass';
+import * as THREE from 'three';
 import VertexShader from './shaders/vertexShader.glsl';
 import MandelbrotFragShader from './shaders/mandelbrotFragShader.glsl';
 import JuliaFragShader_2 from './shaders/juliaFragShader_2.glsl';
@@ -37,15 +36,15 @@ function init() {
     renderer.setSize( renderSize, renderSize );
     document.body.appendChild( renderer.domElement );
 
-    oldAnimate();
+    animate();
 }
 
 // TODO: MAKE THIS WORK BY GETTING addons FOLDER TO IMPORT CORRECTLY
 function animate(){
-    composer = new THREE.EffectComposer(renderer);
-    var renderPass = new THREE.RenderPass(currentScene, camera);
+    composer = new EffectComposer(renderer);
+    var renderPass = new RenderPass(currentScene, camera);
     composer.addPass(renderPass);
-    var effectBloom = new THREE.UnrealBloomPass(new THREE.Vector2(sceneSize, sceneSize), 1.5, 0.4, 0.85);
+    var effectBloom = new UnrealBloomPass(new THREE.Vector2(sceneSize, sceneSize), 1.5, 0.4, 0.85);
     effectBloom.threshold = 0;
     effectBloom.strength = 0.5;
     effectBloom.radius = 0;
