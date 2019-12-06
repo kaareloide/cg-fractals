@@ -16,6 +16,7 @@ var center = new THREE.Vector2(0.5, 0.5);
 var renderSize;
 var sceneSize = 1;
 var buttonAnimation;
+var bloom = false;
 
 init();
 
@@ -34,24 +35,40 @@ function init() {
 
     renderSize = window.innerHeight < window.innerWidth? window.innerHeight : window.innerWidth;
     renderer.setSize( renderSize, renderSize );
-    document.body.appendChild( renderer.domElement );
+    var canvasContainer = document.getElementById("canvas-container");
+    var canvas = renderer.domElement;
+
+    canvas.addEventListener("webglcontextlost", function(event) {
+        event.preventDefault();
+    }, false);
+
+
+    canvasContainer.appendChild( canvas );
+    //document.body.appendChild( renderer.domElement );
 
     animate();
 }
 
 // TODO: MAKE THIS WORK BY GETTING addons FOLDER TO IMPORT CORRECTLY
 function animate(){
-    composer = new EffectComposer(renderer);
-    var renderPass = new RenderPass(currentScene, camera);
-    composer.addPass(renderPass);
-    var effectBloom = new UnrealBloomPass(new THREE.Vector2(sceneSize, sceneSize), 1.5, 0.4, 0.85);
-    effectBloom.threshold = 0;
-    effectBloom.strength = 0.5;
-    effectBloom.radius = 0;
-    composer.addPass(effectBloom);
-
-    composer.render();
-    requestAnimationFrame( animate );
+    if (bloom) {
+        composer = new EffectComposer(renderer);
+        var renderPass = new RenderPass(currentScene, camera);
+        composer.addPass(renderPass);
+        var effectBloom = new UnrealBloomPass(new THREE.Vector2(sceneSize, sceneSize), 1.5, 0.4, 0.85);
+        effectBloom.threshold = 0;
+        effectBloom.strength = 0.5;
+        effectBloom.radius = 0;
+        composer.addPass(effectBloom);
+    
+        composer.render();
+        requestAnimationFrame( animate );
+    }
+    else {
+        requestAnimationFrame( animate );
+        renderer.render( currentScene, camera );
+    }
+    
 }
 
 function oldAnimate() {
@@ -267,6 +284,10 @@ function zoomAnimation(centerX, centerY) {
     }
 }
 
+function toggleBloom() {
+    bloom = !bloom;
+}
+
 function createMandelbrotScene() {
     var scene = new THREE.Scene();
     var mesh = createPlaneMesh(VertexShader, MandelbrotFragShader);
@@ -295,6 +316,8 @@ function createMandelbrotScene() {
         0.13798, 0.5, scene
     );
 
+    addButton("Toggle bloom", toggleBloom);
+
 	return scene;
 }
 
@@ -321,6 +344,8 @@ function createJuliaSet2Scene() {
         zoomAnimation,
         0.555, 0.485, scene
     );
+
+    addButton("Toggle bloom", toggleBloom);
 
     addDropdown("Constant presets", ["-1.201+0.156i", "-0.8+0.156i", "-0.7269+0.1889i"],
         function() {
@@ -366,6 +391,8 @@ function createJuliaSet3Scene() {
         zoomAnimation,
         0.69, 0.45, scene
     );
+
+    addButton("Toggle bloom", toggleBloom);
 
     return scene;
 }
