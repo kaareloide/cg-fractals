@@ -10,7 +10,7 @@ uniform int maxIterations;
 varying vec2 interpolatedUv;
 
 void main() {
-    vec3 color = vec3(0.35, 0.1, 0.005);
+    vec3 color = vec3(0.0, 0.0, 0.0);
     float t, absValue;
     vec2 z, c;
 
@@ -28,10 +28,10 @@ void main() {
 
         if (absValue > 4.0) {
             // annab arvu vahemikus 0..1
-            t = log(float(i + 1)) / log(float(maxIterations + 1));// liidetud 1 kuna muidu võib tulla log(0)
-            color.x = t * 0.7 + (1.0 - t) * 0.15;
-            color.y = t * 0.3 + (1.0 - t) * 0.1;
-            color.z = t * 0.1  + (1.0 - t) * 0.15;
+            t = log(float(i + 1)) / log(float(maxIterations + 1));
+            color.x = mod(t, 0.5) + t * 0.5;
+            color.y = mod(t, 0.5) + t * 0.1;
+            color.z = 0.1 + 0.1 * t;
             break;
         }
     }

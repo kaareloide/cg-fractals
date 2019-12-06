@@ -119,9 +119,6 @@ function onMouseWheel(e) {
     y = calculateCenterCoordinateAfterZoom(y, center.y, scaleBefore, scale);
     center = new THREE.Vector2(x, y);
 
-    // max iterations update
-    maxIterations = Math.min(600 / scale, 2000);
-
     return false;
 }
 
