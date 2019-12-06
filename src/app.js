@@ -5,20 +5,18 @@ import './styles/app.css';
 //import { RenderPass} from './addons/RenderPass.js';
 //import { UnrealBloomPass } from './addons/UnrealBloomPass.js';
 
-import VertexShaderBasic from './shaders/vertexShaderBasic.glsl';
-import FragShaderBasic from './shaders/fragShaderBasic.glsl';
-import JuliaFragShader from './shaders/juliaFragShader.glsl';
-import JuliaVertexShader from './shaders/juliaVertexShader.glsl';
-import BuddhaFragShader from './shaders/buddhaFragShader.glsl';
-import BuddhaVertexShader from './shaders/buddhaVertexShader.glsl';
+import VertexShader from './shaders/vertexShader.glsl';
+import MandelbrotFragShader from './shaders/mandelbrotFragShader.glsl';
+import JuliaFragShader_2 from './shaders/juliaFragShader_2.glsl';
+import JuliaFragShader_3 from './shaders/juliaFragShader_3.glsl';
 
-var camera, currentScene, renderer, composer, vertexShader, fragShader;
-var textures = [];
+var camera, currentScene, renderer, composer;
 var scale = 5.0;
 var maxIterations = Math.min(1000 / scale, 2000);
 var center = new THREE.Vector2(0.5, 0.5);
 var renderSize;
 var sceneSize = 1;
+var buttonAnimation;
 
 init();
 
@@ -32,7 +30,7 @@ function init() {
     camera = new THREE.OrthographicCamera( sceneSize / - 2,  sceneSize / 2,  sceneSize / 2, sceneSize / - 2, 0.01, 1000 );
 	camera.position.z = 10;
 
-    currentScene = createScene1();
+    currentScene = createMandelbrotScene();
 	renderer = new THREE.WebGLRenderer( { antialias: true } );
 
     renderSize = window.innerHeight < window.innerWidth? window.innerHeight : window.innerWidth;
@@ -128,87 +126,38 @@ function calculateCenterCoordinateAfterZoom(coordinate, centerCoordinate, scaleB
     return (scaleNow * coordinate - (scaleBefore * coordinate + scaleBefore * (0 - centerCoordinate))) / scaleNow;
 }
 
-function resetZoomAndCenter() {
-    scale = 5.0;
-    center = new THREE.Vector2(0.5, 0.5);
-    currentScene.children[0].material.uniforms.center.value = center;
-    currentScene.children[0].material.uniforms.scale.value = scale;
+function setScaleAndCenter(newScale, centerX, centerY) {
+    scale = newScale;
+    center = new THREE.Vector2(centerX, centerY);
+    currentScene.getObjectByName("mesh").material.uniforms.center.value = center;
+    currentScene.getObjectByName("mesh").material.uniforms.scale.value = scale;
+}
+
+function resetScaleAndCenter() {
+    setScaleAndCenter(5.0, 0.5, 0.5)
 }
 
 // change scene with number keys 1,2,3
 function changeScene(e) {
-    // reset scale and center
-    resetZoomAndCenter();
+    resetScaleAndCenter();
+    clearOverlay();
+    stopAnimation();
 
     switch (e.code) {
 		case "Digit1":
-            currentScene = createScene1();
+            currentScene = createMandelbrotScene();
 			break;
 		case "Digit2":
-			currentScene = createScene2();
+			currentScene = createJuliaSet2Scene();
 			break;
 		case "Digit3":
-			currentScene = createScene3();
+			currentScene = createJuliaSet3Scene();
 			break;
 	}
 	console.log(e.code);
 }
 
-function createScene1() {
-	var scene = new THREE.Scene();
-    var geometry = new THREE.PlaneBufferGeometry(sceneSize, sceneSize, 1);
-    var uvCoord = new Float32Array([
-		0,0,
-		1,0,
-		0,1,
-		1,1
-    ]);
-    geometry.addAttribute("uvCoord", new THREE.BufferAttribute(uvCoord, 2));
-	var material = createShaderMaterialMandelbrot(textures[0], VertexShaderBasic, FragShaderBasic);
-	var mesh = new THREE.Mesh( geometry, material );
-	mesh.name = "mesh";
-    scene.add( mesh );
-    clearOverlay();
-    addSlider(
-        "colorR1",
-        0,
-        5,
-        0.9,
-        0.1,
-        function() {
-            mesh.material.uniforms.colorR1.value = this.value;
-        }
-    );
-
-    addSlider(
-        "colorG1",
-        0,
-        5,
-        0.9,
-        0.1,
-        function() {
-            mesh.material.uniforms.colorG1.value = this.value;
-        }
-    );
-
-    addSlider(
-        "colorB1",
-        0,
-        5,
-        0.1,
-        0.1,
-        function() {
-            mesh.material.uniforms.colorB1.value = this.value;
-        }
-    );
-
-	return scene;
-}
-
-function createScene2() {
-    var realConstant = -1.201;
-    var imaginaryConstant = 0.156;
-    var scene = new THREE.Scene();
+function createPlaneMesh(VertexShader, FragShader){
     var geometry = new THREE.PlaneBufferGeometry(sceneSize, sceneSize, 1);
     var uvCoord = new Float32Array([
         0,0,
@@ -216,90 +165,12 @@ function createScene2() {
         0,1,
         1,1
     ]);
-    geometry.addAttribute("uvCoord", new THREE.BufferAttribute(uvCoord, 2));
-    var material = createShaderMaterialJulia(JuliaVertexShader, JuliaFragShader, realConstant, imaginaryConstant);
+    geometry.setAttribute("uvCoord", new THREE.BufferAttribute(uvCoord, 2));
+    var material = createShaderMaterial(VertexShader, FragShader);
     var mesh = new THREE.Mesh( geometry, material );
     mesh.name = "mesh";
-    scene.add( mesh );
-    clearOverlay();
-    addSlider(
-        "Real constant",
-        -2,
-        2,
-        -0.8,
-        0.001,
-        function() {
-            mesh.material.uniforms.realConstant.value = this.value;
-        }
-    );
 
-    addSlider(
-        "Imag constant",
-        -1,
-        1,
-        0.156,
-        0.001,
-        function() {
-            mesh.material.uniforms.imaginaryConstant.value = this.value;
-        }
-    );
-
-    addDropdown(
-        "Julia set function",
-        ["Z*Z+C", "Z*Z*Z+C"],
-        function() {
-            resetZoomAndCenter();
-            mesh.material.uniforms.functionExponent.value = this.value;
-            if (this.value == 0) {
-                mesh.material.uniforms.realConstant.value = -1.201;
-                mesh.material.uniforms.imaginaryConstant.value = 0.156;
-            } else if (this.value == 1) {
-                mesh.material.uniforms.realConstant.value = -0.594;
-                mesh.material.uniforms.imaginaryConstant.value = 0.156;
-            }
-        }
-    );
-
-    addButton("Animate",
-        function() {
-            var id = setInterval(frame, 5);
-            var times = 1000;
-            function frame() {
-                if (times == 0) {
-                    clearInterval(id);
-                } else {
-                    var scaleBefore = scale;
-                    times = times - 1;
-                    scale = scale * 0.99;
-                    center = new THREE.Vector2(
-                        calculateCenterCoordinateAfterZoom(0.7, center.x, scaleBefore, scale),
-                        calculateCenterCoordinateAfterZoom(0.5, center.y, scaleBefore, scale)
-                    );
-                    currentScene.children[0].material.uniforms.center.value = center;
-                    currentScene.children[0].material.uniforms.scale.value = scale;
-                }
-            }
-        });
-
-    return scene;
-}
-
-function createScene3() {
-    clearOverlay();
-	var scene = new THREE.Scene();
-    var geometry = new THREE.PlaneBufferGeometry(sceneSize, sceneSize, 1);
-    var uvCoord = new Float32Array([
-		0,0,
-		1,0,
-		0,1,
-		1,1
-    ]);
-    geometry.addAttribute("uvCoord", new THREE.BufferAttribute(uvCoord, 2));
-	var material = createShaderMaterial(textures[0], BuddhaVertexShader, BuddhaFragShader);
-	var mesh = new THREE.Mesh( geometry, material );
-	mesh.name = "mesh";
-	scene.add( mesh );
-	return scene;
+    return mesh
 }
 
 function clearOverlay() {
@@ -316,7 +187,11 @@ function clearOverlay() {
     while (elements[0]) elements[0].parentNode.removeChild(elements[0]);
 }
 
-function addSlider(name, min, max, value, step, oninput) {
+function stopAnimation() {
+    clearInterval(buttonAnimation)
+}
+
+function addSlider(name, min, max, value, step, onInput) {
     var sliderWrapper = document.createElement("div");
     var sliderTitle = document.createTextNode(name);
     var slider = document.createElement("input");
@@ -326,7 +201,7 @@ function addSlider(name, min, max, value, step, oninput) {
     slider.max = max;
     slider.value = value;
     slider.step = step;
-    slider.oninput = oninput;
+    slider.oninput = onInput;
     slider.className = "slider";
     sliderTitle.className = "slider-title";
     sliderWrapper.className = "slider-wrapper";
@@ -360,24 +235,119 @@ function addDropdown(name, items, onChange) {
     document.getElementById("dropdowns").appendChild(dropdownWrapper);
 }
 
-function addButton(name, onclick) {
+function addButton(name, onClick, ...args) {
     var button = document.createElement("button");
     button.innerHTML = name;
     button.addEventListener ("click", function() {
-        onclick();
+        onClick(...args);
     });
 
     document.getElementById("buttons").appendChild(button);
 }
 
+function zoomAnimation(centerX, centerY) {
+    stopAnimation();
+    resetScaleAndCenter();
+    buttonAnimation = setInterval(frame, 5);
+    var times = 1000;
+    var scaleChange = 0.99;
+    var x, y, newScale;
+    function frame() {
+        if (times == 0) {
+            clearInterval(buttonAnimation);
+        } else {
+            times = times - 1;
+            newScale = scale * scaleChange;
+            x = calculateCenterCoordinateAfterZoom(centerX, center.x, scale, newScale);
+            y = calculateCenterCoordinateAfterZoom(centerY, center.y, scale, newScale);
+            setScaleAndCenter(newScale, x, y)
+        }
+    }
+}
 
-function createShaderMaterialMandelbrot(texture, vertexShader, fragShader) {
+function createMandelbrotScene() {
+    var scene = new THREE.Scene();
+    var mesh = createPlaneMesh(VertexShader, MandelbrotFragShader);
+    scene.add( mesh );
+
+    addSlider("colorR1", 0, 5, 0.9, 0.1,
+        function() {
+            mesh.material.uniforms.colorR1.value = this.value;
+        }
+    );
+
+    addSlider("colorG1", 0, 5, 0.9, 0.1,
+        function() {
+            mesh.material.uniforms.colorG1.value = this.value;
+        }
+    );
+
+    addSlider("colorB1", 0, 5, 0.1, 0.1,
+        function() {
+            mesh.material.uniforms.colorB1.value = this.value;
+        }
+    );
+
+	return scene;
+}
+
+function createJuliaSet2Scene() {
+    var scene = new THREE.Scene();
+    var mesh = createPlaneMesh(VertexShader, JuliaFragShader_2);
+    mesh.material.uniforms.realConstant.value = -1.201;
+    mesh.material.uniforms.imaginaryConstant.value = 0.156;
+    scene.add( mesh );
+
+    addSlider("Real constant", -2, 2, -0.8, 0.001,
+        function() {
+            mesh.material.uniforms.realConstant.value = this.value;
+        }
+    );
+
+    addSlider("Imag constant", -1, 1, 0.156, 0.001,
+        function() {
+            mesh.material.uniforms.imaginaryConstant.value = this.value;
+        }
+    );
+
+    addButton("Animate",
+        zoomAnimation,
+        0.555, 0.485, scene
+    );
+
+    return scene;
+}
+
+function createJuliaSet3Scene() {
+    var scene = new THREE.Scene();
+    var mesh = createPlaneMesh(VertexShader, JuliaFragShader_3);
+    mesh.material.uniforms.realConstant.value = -0.594;
+    mesh.material.uniforms.imaginaryConstant.value = 0.156;
+    scene.add( mesh );
+
+    addSlider("Real constant", -2, 2, -0.8, 0.001,
+        function() {
+            mesh.material.uniforms.realConstant.value = this.value;
+        }
+    );
+
+    addSlider("Imag constant", -1, 1, 0.156, 0.001,
+        function() {
+            mesh.material.uniforms.imaginaryConstant.value = this.value;
+        }
+    );
+
+    addButton("Animate",
+        zoomAnimation,
+        0.69, 0.45, scene
+    );
+
+    return scene;
+}
+
+function createShaderMaterial(vertexShader, fragShader) {
     return new THREE.ShaderMaterial({
         uniforms: {
-            texture: {
-                type: 't',
-                value: texture
-            },
             scale:{
                 type: 'float',
                 value: scale
@@ -401,39 +371,14 @@ function createShaderMaterialMandelbrot(texture, vertexShader, fragShader) {
             colorB1:{
                 type: 'float',
                 value: 0.1
-            }
-        },
-        vertexShader: vertexShader,
-        fragmentShader: fragShader
-    });
-}
-
-function createShaderMaterialJulia(vertexShader, fragShader, realConstant, imaginaryConstant, functionExponent) {
-    return new THREE.ShaderMaterial({
-        uniforms: {
-            scale:{
-                type: 'float',
-                value: scale
-            },
-            center:{
-                type: 'v2',
-                value: center
             },
             realConstant:{
                 type: 'float',
-                value: realConstant
+                value: 0.0
             },
             imaginaryConstant:{
                 type: 'float',
-                value: imaginaryConstant
-            },
-            maxIterations:{
-                type: 'int',
-                value: maxIterations
-            },
-            functionExponent:{
-                type: 'int',
-                value: functionExponent
+                value: 0.0
             }
         },
         vertexShader: vertexShader,
