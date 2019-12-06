@@ -20,6 +20,7 @@ var bloomActivated = false;
 var renderSize;
 var sceneSize = 1;
 var buttonAnimation;
+var bloom = false;
 
 init();
 
@@ -34,16 +35,21 @@ function init() {
 	camera.position.z = 10;
 
 	resetSettings();
-    addButton("Bloom ON/OFF",
-        function() {
-            bloomActivated = !bloomActivated;
-        });
     currentScene = createMandelbrotScene();
 	renderer = new THREE.WebGLRenderer( { antialias: true } );
 
     renderSize = window.innerHeight < window.innerWidth? window.innerHeight : window.innerWidth;
     renderer.setSize( renderSize, renderSize );
-    document.body.appendChild( renderer.domElement );
+    var canvasContainer = document.getElementById("canvas-container");
+    var canvas = renderer.domElement;
+
+    canvas.addEventListener("webglcontextlost", function(event) {
+        event.preventDefault();
+    }, false);
+
+
+    canvasContainer.appendChild( canvas );
+    //document.body.appendChild( renderer.domElement );
 
     animate();
 }
@@ -53,19 +59,24 @@ function animate(){
     currentScene.getObjectByName("mesh").material.uniforms.scale.value = scale;
     currentScene.getObjectByName("mesh").material.uniforms.center.value = center;
 
-    if (bloomActivated) {
+    if (bloom) {
         composer = new EffectComposer(renderer);
         var renderPass = new RenderPass(currentScene, camera);
         composer.addPass(renderPass);
-        var effectBloom = new UnrealBloomPass(new THREE.Vector2(sceneSize, sceneSize), 0.3, 0.6, 0.25);
+        var effectBloom = new UnrealBloomPass(new THREE.Vector2(sceneSize, sceneSize), 1.5, 0.4, 0.85);
+        effectBloom.threshold = 0;
+        effectBloom.strength = 0.5;
+        effectBloom.radius = 0;
         composer.addPass(effectBloom);
+
         composer.render();
-    } else {
+    }
+    else {
         renderer.render( currentScene, camera );
     }
-
     requestAnimationFrame( animate );
 }
+
 
 function onWindowResize() {
     renderSize = window.innerHeight < window.innerWidth? window.innerHeight : window.innerWidth;
@@ -138,10 +149,6 @@ function resetSettings() {
 function changeScene(e) {
     clearOverlay();
     stopAnimation();
-    addButton("Bloom ON/OFF",
-        function() {
-            bloomActivated = !bloomActivated;
-        });
 
     switch (e.code) {
 		case "Digit1":
@@ -284,6 +291,10 @@ function constantChangeAnimation(valueFrom, valueTo, realFunction, imagFunction,
     }
 }
 
+function toggleBloom() {
+    bloom = !bloom;
+}
+
 function createMandelbrotScene() {
     var scene = new THREE.Scene();
     var mesh = createPlaneMesh(VertexShader, MandelbrotFragShader);
@@ -311,6 +322,8 @@ function createMandelbrotScene() {
         zoomAnimation,
         0.13798, 0.5, scene
     );
+
+    addButton("Toggle bloom", toggleBloom);
 
 	return scene;
 }
@@ -346,6 +359,8 @@ function createJuliaSet2Scene() {
         function(x) {return 0.7885 * Math.sin(x)},
         mesh
     );
+
+    addButton("Toggle bloom", toggleBloom);
 
     addDropdown("Constant presets", ["-1.201+0.156i", "-0.8+0.156i", "-0.7269+0.1889i"],
         function() {
@@ -391,6 +406,8 @@ function createJuliaSet3Scene() {
         zoomAnimation,
         0.69, 0.45, scene
     );
+
+    addButton("Toggle bloom", toggleBloom);
 
     return scene;
 }

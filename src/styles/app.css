@@ -1,3 +1,7 @@
+html {
+  background: #3b3b3b;
+}
+
 .slider {
   -webkit-appearance: none;
   width: 100%;
@@ -10,34 +14,95 @@
   transition: opacity .2s;
 }
 
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 25px;
+  height: 25px;
+  border-radius: 50%; 
+  background: #4CAF50;
+  cursor: pointer;
+}
+
+.slider::-moz-range-thumb {
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  background: #4CAF50;
+  cursor: pointer;
+}
+
 .dropdown-wrapper {
-  background-color: white;
+  background-color: transparent;
   text-align: center;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: row;
+  font-family: monospace;
+  font-size: 18px;
+}
+
+.dropdown {
+  margin-left: 10px;
 }
 
 .slider-wrapper {
-  background-color: white;
+  background-color: transparent;
   text-align: center;
+  margin: 10px;
+  color: white;
+  font-family: monospace;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: row;
+  white-space: nowrap;
 }
 
 #overlay {
-  position: fixed; /* Sit on top of the page content */
-  width: 40%; /* Full width (cover the whole page) */
+  width: 100%; /* Full width (cover the whole page) */
   height: 20%; /* Full height (cover the whole page) */
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0,0,0,0.5); /* Black background with opacity */
-  z-index: 2; /* Specify a stack order in case you're using a different order for other elements */
-  cursor: pointer; /* Add a pointer on hover */
+  background-color: rgba(0,0,0,0.2);
+  z-index: 2; 
+  cursor: pointer;
   margin-left: auto;
   margin-right: auto;
+  left:0px;
+  bottom:0px;
 }
 
 canvas {
   display: block;
   margin-left: auto;
   margin-right: auto;
-  width: 50%;
+  width: 20%;
+}
+
+button {
+  width: 15%;
+  border: none; 
+  color: black; 
+  padding: 14px 28px; 
+  margin: 10px;
+  cursor: pointer; 
+  border-radius: 8px;
+  background-color: #d3d3d3;
+  font-size: 18px;
+  font-family: monospace;
+}
+
+button:hover {background: #4CAF50;}
+
+#buttons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: row;
 }
