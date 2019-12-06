@@ -1,4 +1,5 @@
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const ThreeWebpackPlugin = require('@wildpeaks/three-webpack-plugin');
 const path = require("path");
 
 module.exports = {
@@ -38,6 +39,7 @@ module.exports = {
       title: 'Fractals',
       template: './src/index.html',
       filename: 'index.html'
-    })
+    }),
+    new ThreeWebpackPlugin()
   ]
 };
