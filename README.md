@@ -21,3 +21,12 @@ Start development server
 ```bash
 $ npm run start
 ```
+
+## Publishing to gh-pages
+```bash
+$ npm run build
+$ cd dist
+$ git add .
+$ git commit -am "commit message"
+$ git push oorigin gh-pages
+```
