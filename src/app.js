@@ -15,6 +15,7 @@ let defaultScale = 5.0 ;
 
 var camera, currentScene, renderer, composer;
 var maxIterations, center, scale;
+var bloomActivated = false;
 
 var renderSize;
 var sceneSize = 1;
@@ -33,6 +34,10 @@ function init() {
 	camera.position.z = 10;
 
 	resetSettings();
+    addButton("Bloom ON/OFF",
+        function() {
+            bloomActivated = !bloomActivated;
+        });
     currentScene = createMandelbrotScene();
 	renderer = new THREE.WebGLRenderer( { antialias: true } );
 
@@ -43,28 +48,23 @@ function init() {
     animate();
 }
 
-// TODO: MAKE THIS WORK BY GETTING addons FOLDER TO IMPORT CORRECTLY
 function animate(){
-    composer = new EffectComposer(renderer);
-    var renderPass = new RenderPass(currentScene, camera);
-    composer.addPass(renderPass);
-    var effectBloom = new UnrealBloomPass(new THREE.Vector2(sceneSize, sceneSize), 1.5, 0.4, 0.85);
-    effectBloom.threshold = 0;
-    effectBloom.strength = 0.5;
-    effectBloom.radius = 0;
-    composer.addPass(effectBloom);
-
-    composer.render();
-    requestAnimationFrame( animate );
-}
-
-function oldAnimate() {
     currentScene.getObjectByName("mesh").material.uniforms.maxIterations.value = maxIterations;
     currentScene.getObjectByName("mesh").material.uniforms.scale.value = scale;
     currentScene.getObjectByName("mesh").material.uniforms.center.value = center;
 
-    requestAnimationFrame( oldAnimate );
-    renderer.render( currentScene, camera );
+    if (bloomActivated) {
+        composer = new EffectComposer(renderer);
+        var renderPass = new RenderPass(currentScene, camera);
+        composer.addPass(renderPass);
+        var effectBloom = new UnrealBloomPass(new THREE.Vector2(sceneSize, sceneSize), 0.3, 0.6, 0.25);
+        composer.addPass(effectBloom);
+        composer.render();
+    } else {
+        renderer.render( currentScene, camera );
+    }
+
+    requestAnimationFrame( animate );
 }
 
 function onWindowResize() {
@@ -138,6 +138,10 @@ function resetSettings() {
 function changeScene(e) {
     clearOverlay();
     stopAnimation();
+    addButton("Bloom ON/OFF",
+        function() {
+            bloomActivated = !bloomActivated;
+        });
 
     switch (e.code) {
 		case "Digit1":
