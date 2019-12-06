@@ -32,5 +32,5 @@ $ npm run build
 $ cd dist
 $ git add .
 $ git commit -am "commit message"
-$ git push oorigin gh-pages
+$ git push origin gh-pages
 ```
