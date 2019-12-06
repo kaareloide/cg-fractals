@@ -22,16 +22,24 @@ void main() {
         c.x = z.x * z.x - z.y * z.y + realConstant;
         c.y = 2.0 * z.y * z.x + imaginaryConstant;
         absValue = c.x * c.x + c.y * c.y;
+        t += exp(-absValue);
 
         z = c;
         if (i > maxIterations) break;
 
         if (absValue > 4.0) {
+            /*
             // annab arvu vahemikus 0..1
             t = log(float(i + 1)) / log(float(maxIterations + 1));
             color.x = mod(t, 0.5) + t * 0.5;
             color.y = mod(t, 0.5) + t * 0.1;
             color.z = 0.1 + 0.1 * t;
+            */
+
+            color.z = 0.6 + 0.4*sin(t);
+            color.y = color.z * color.z;
+            color.x = color.z * color.y;
+
             break;
         }
     }

@@ -74,19 +74,20 @@ function onWindowResize() {
 }
 
 function onMouseWheel(e) {
-    var e = window.event || e;
+    e = window.event || e;
 
     // kui mouse event toimus stseenist väljas siis ei zoomi ega uuenda keskkohta
     // kontroll x-koordinaadi järgi
+    var windowSideSize;
     if (window.innerWidth > renderSize) {
-        var windowSideSize = (window.innerWidth - renderSize) / 2;
+        windowSideSize = (window.innerWidth - renderSize) / 2;
         if (e.clientX < windowSideSize || e.clientX > windowSideSize + renderSize) {
             return false;
         }
     }
     // kontroll y-koordinaadi järgi
     if (window.innerHeight > renderSize) {
-        var windowSideSize = (window.innerHeight - renderSize) / 2;
+        windowSideSize = (window.innerHeight - renderSize) / 2;
         if (e.clientY < windowSideSize || e.clientY > windowSideSize + renderSize) {
             return false;
         }
@@ -101,18 +102,20 @@ function onMouseWheel(e) {
 
     // center update
     // new x
+    var x;
     if (window.innerWidth > renderSize) {
-        var windowSideSize = (window.outerWidth - renderSize) / 2;
-        var x = (e.clientX - windowSideSize) / renderSize;
+        windowSideSize = (window.outerWidth - renderSize) / 2;
+        x = (e.clientX - windowSideSize) / renderSize;
     } else {
-        var x = e.clientX / window.innerWidth;
+        x = e.clientX / window.innerWidth;
     }
     // new y
+    var y;
     if (window.innerHeight > renderSize) {
-        var windowSideSize = (window.innerHeight - renderSize) / 2;
-        var y = (e.clientY - windowSideSize) / renderSize;
+        windowSideSize = (window.innerHeight - renderSize) / 2;
+        y = (e.clientY - windowSideSize) / renderSize;
     } else {
-        var y = e.clientY / window.innerHeight;
+        y = e.clientY / window.innerHeight;
     }
 
     x = calculateCenterCoordinateAfterZoom(x, center.x, scaleBefore, scale);
