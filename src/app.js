@@ -10,10 +10,13 @@ import MandelbrotFragShader from './shaders/mandelbrotFragShader.glsl';
 import JuliaFragShader_2 from './shaders/juliaFragShader_2.glsl';
 import JuliaFragShader_3 from './shaders/juliaFragShader_3.glsl';
 
+let defaultMaxIterations = 400;
+let defaultCenter = new THREE.Vector2(0.5, 0.5);
+let defaultScale = 5.0 ;
+
 var camera, currentScene, renderer, composer;
-var scale = 5.0;
-var maxIterations = Math.min(600 / scale, 2000);
-var center = new THREE.Vector2(0.5, 0.5);
+var maxIterations, center, scale;
+
 var renderSize;
 var sceneSize = 1;
 var buttonAnimation;
@@ -30,6 +33,7 @@ function init() {
     camera = new THREE.OrthographicCamera( sceneSize / - 2,  sceneSize / 2,  sceneSize / 2, sceneSize / - 2, 0.01, 1000 );
 	camera.position.z = 10;
 
+	resetSettings();
     currentScene = createMandelbrotScene();
 	renderer = new THREE.WebGLRenderer( { antialias: true } );
 
@@ -56,6 +60,10 @@ function animate(){
 }
 
 function oldAnimate() {
+    currentScene.getObjectByName("mesh").material.uniforms.maxIterations.value = maxIterations;
+    currentScene.getObjectByName("mesh").material.uniforms.scale.value = scale;
+    currentScene.getObjectByName("mesh").material.uniforms.center.value = center;
+
     requestAnimationFrame( oldAnimate );
     renderer.render( currentScene, camera );
 }
@@ -109,11 +117,10 @@ function onMouseWheel(e) {
 
     x = calculateCenterCoordinateAfterZoom(x, center.x, scaleBefore, scale);
     y = calculateCenterCoordinateAfterZoom(y, center.y, scaleBefore, scale);
-    setScaleAndCenter(scale, x, y);
+    center = new THREE.Vector2(x, y);
 
     // max iterations update
     maxIterations = Math.min(600 / scale, 2000);
-    currentScene.getObjectByName("mesh").material.uniforms.maxIterations.value = maxIterations;
 
     return false;
 }
@@ -122,25 +129,16 @@ function calculateCenterCoordinateAfterZoom(coordinate, centerCoordinate, scaleB
     return (scaleNow * coordinate - (scaleBefore * coordinate + scaleBefore * (0 - centerCoordinate))) / scaleNow;
 }
 
-function setScaleAndCenter(newScale, centerX, centerY) {
-    scale = newScale;
-    center = new THREE.Vector2(centerX, centerY);
-    currentScene.getObjectByName("mesh").material.uniforms.center.value = center;
-    currentScene.getObjectByName("mesh").material.uniforms.scale.value = scale;
-}
-
-function resetScaleAndCenter() {
-    setScaleAndCenter(5.0, 0.5, 0.5)
-}
-
-function resetMaxIterations() {
-    maxIterations = 600;
-    currentScene.getObjectByName("mesh").material.uniforms.maxIterations.value = maxIterations;
+function resetSettings() {
+    scale = defaultScale;
+    center = defaultCenter;
+    maxIterations = defaultMaxIterations;
 }
 
 // change scene with number keys 1,2,3
 function changeScene(e) {
     clearOverlay();
+    stopAnimation();
 
     switch (e.code) {
 		case "Digit1":
@@ -153,11 +151,8 @@ function changeScene(e) {
 			currentScene = createJuliaSet3Scene();
 			break;
 	}
-	console.log(e.code);
 
-    resetScaleAndCenter();
-    resetMaxIterations();
-    stopAnimation();
+    resetSettings();
 }
 
 function createPlaneMesh(VertexShader, FragShader){
@@ -250,7 +245,7 @@ function addButton(name, onClick, ...args) {
 
 function zoomAnimation(centerX, centerY) {
     stopAnimation();
-    resetScaleAndCenter();
+    resetSettings();
     buttonAnimation = setInterval(frame, 5);
     var times = 1000;
     var scaleChange = 0.99;
@@ -263,7 +258,8 @@ function zoomAnimation(centerX, centerY) {
             newScale = scale * scaleChange;
             x = calculateCenterCoordinateAfterZoom(centerX, center.x, scale, newScale);
             y = calculateCenterCoordinateAfterZoom(centerY, center.y, scale, newScale);
-            setScaleAndCenter(newScale, x, y)
+            center = new THREE.Vector2(x, y);
+            scale = newScale;
         }
     }
 }
