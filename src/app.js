@@ -12,7 +12,7 @@ import JuliaFragShader_3 from './shaders/juliaFragShader_3.glsl';
 
 var camera, currentScene, renderer, composer;
 var scale = 5.0;
-var maxIterations = Math.min(1000 / scale, 2000);
+var maxIterations = Math.min(600 / scale, 2000);
 var center = new THREE.Vector2(0.5, 0.5);
 var renderSize;
 var sceneSize = 1;
@@ -89,8 +89,7 @@ function onMouseWheel(e) {
 
     // zoom
     var delta = Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)));
-    scale =  delta > 0 ? scale / scaleSize : scale * scaleSize;
-    currentScene.children[0].material.uniforms.scale.value = scale;
+    scale = delta > 0 ? scale / scaleSize : scale * scaleSize;
 
     // center update
     // new x
@@ -100,8 +99,6 @@ function onMouseWheel(e) {
     } else {
         var x = e.clientX / window.innerWidth;
     }
-    x = calculateCenterCoordinateAfterZoom(x, center.x, scaleBefore, scale);
-
     // new y
     if (window.innerHeight > renderSize) {
         var windowSideSize = (window.innerHeight - renderSize) / 2;
@@ -109,15 +106,14 @@ function onMouseWheel(e) {
     } else {
         var y = e.clientY / window.innerHeight;
     }
-    y = calculateCenterCoordinateAfterZoom(y, center.y, scaleBefore, scale);
 
-    center = new THREE.Vector2(x, y);
-    currentScene.children[0].material.uniforms.center.value = center;
+    x = calculateCenterCoordinateAfterZoom(x, center.x, scaleBefore, scale);
+    y = calculateCenterCoordinateAfterZoom(y, center.y, scaleBefore, scale);
+    setScaleAndCenter(scale, x, y);
 
     // max iterations update
-    maxIterations = Math.min(1000 / scale, 2000);
-    currentScene.children[0].material.uniforms.maxIterations.value = maxIterations;
-    console.log(maxIterations);
+    maxIterations = Math.min(600 / scale, 2000);
+    currentScene.getObjectByName("mesh").material.uniforms.maxIterations.value = maxIterations;
 
     return false;
 }
@@ -137,11 +133,14 @@ function resetScaleAndCenter() {
     setScaleAndCenter(5.0, 0.5, 0.5)
 }
 
+function resetMaxIterations() {
+    maxIterations = 600;
+    currentScene.getObjectByName("mesh").material.uniforms.maxIterations.value = maxIterations;
+}
+
 // change scene with number keys 1,2,3
 function changeScene(e) {
-    resetScaleAndCenter();
     clearOverlay();
-    stopAnimation();
 
     switch (e.code) {
 		case "Digit1":
@@ -155,6 +154,10 @@ function changeScene(e) {
 			break;
 	}
 	console.log(e.code);
+
+    resetScaleAndCenter();
+    resetMaxIterations();
+    stopAnimation();
 }
 
 function createPlaneMesh(VertexShader, FragShader){
@@ -288,6 +291,11 @@ function createMandelbrotScene() {
         }
     );
 
+    addButton("Animate",
+        zoomAnimation,
+        0.13798, 0.5, scene
+    );
+
 	return scene;
 }
 
@@ -314,6 +322,24 @@ function createJuliaSet2Scene() {
         zoomAnimation,
         0.555, 0.485, scene
     );
+
+    addDropdown("Constant presets", ["-1.201+0.156i", "-0.8+0.156i", "-0.7269+0.1889i"],
+        function() {
+            switch (this.value) {
+                case "0":
+                    mesh.material.uniforms.realConstant.value = -1.201;
+                    mesh.material.uniforms.imaginaryConstant.value = 0.156;
+                    break;
+                case "1":
+                    mesh.material.uniforms.realConstant.value = -0.8;
+                    mesh.material.uniforms.imaginaryConstant.value = 0.156;
+                    break;
+                case "2":
+                    mesh.material.uniforms.realConstant.value = -0.7269;
+                    mesh.material.uniforms.imaginaryConstant.value = 0.1889;
+                    break;
+            }
+        });
 
     return scene;
 }
