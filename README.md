@@ -27,6 +27,11 @@ $ npm run start
 ```
 
 ## Publishing to gh-pages
+before first time using this method this should be run
+```bash
+$ git worktree add dist gh-pages
+```
+
 ```bash
 $ npm run build
 $ cd dist
