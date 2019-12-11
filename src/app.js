@@ -33,7 +33,8 @@ function init() {
 
     camera = new THREE.OrthographicCamera( sceneSize / - 2,  sceneSize / 2,  sceneSize / 2, sceneSize / - 2, 0.01, 1000 );
 	camera.position.z = 10;
-
+    camera.position.x = 0;
+    
 	resetSettings();
     currentScene = createMandelbrotScene();
 	renderer = new THREE.WebGLRenderer( { antialias: true } );
@@ -81,6 +82,10 @@ function animate(){
 function onWindowResize() {
     renderSize = window.innerHeight < window.innerWidth? window.innerHeight : window.innerWidth;
     renderer.setSize(renderSize, renderSize);
+}
+
+function onMouseDrag(e){
+    //moveCenter();
 }
 
 function onMouseWheel(e) {
@@ -137,6 +142,11 @@ function onMouseWheel(e) {
 
 function calculateCenterCoordinateAfterZoom(coordinate, centerCoordinate, scaleBefore, scaleNow) {
     return (scaleNow * coordinate - (scaleBefore * coordinate + scaleBefore * (0 - centerCoordinate))) / scaleNow;
+}
+
+function moveCenter(x, y){
+    center = new THREE.Vector2(center.x+x, center.y+y);
+    return false;
 }
 
 function resetSettings() {
