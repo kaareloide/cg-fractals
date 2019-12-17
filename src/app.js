@@ -88,6 +88,16 @@ function onMouseDrag(e){
     //moveCenter();
 }
 
+function moveCenter(x, y){
+    center = new THREE.Vector2(center.x+x, center.y+y);
+    return false;
+}
+
+function updateZoom(scale){
+    var displayNumber = parseFloat((scale/4).toString()).toFixed(3);
+    $('#zoom').html(displayNumber+"x");
+}
+
 function onMouseWheel(e) {
     e = window.event || e;
 
@@ -114,6 +124,7 @@ function onMouseWheel(e) {
     // zoom
     var delta = Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)));
     scale = delta > 0 ? scale / scaleSize : scale * scaleSize;
+    updateZoom(scale);
 
     // center update
     // new x
@@ -142,11 +153,6 @@ function onMouseWheel(e) {
 
 function calculateCenterCoordinateAfterZoom(coordinate, centerCoordinate, scaleBefore, scaleNow) {
     return (scaleNow * coordinate - (scaleBefore * coordinate + scaleBefore * (0 - centerCoordinate))) / scaleNow;
-}
-
-function moveCenter(x, y){
-    center = new THREE.Vector2(center.x+x, center.y+y);
-    return false;
 }
 
 function resetSettings() {
