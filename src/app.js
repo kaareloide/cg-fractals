@@ -13,9 +13,15 @@ let defaultMaxIterations = 400;
 let defaultCenter = new THREE.Vector2(0.5, 0.5);
 let defaultScale = 5.0 ;
 
-var camera, currentScene, renderer, composer;
+var camera, currentScene, renderer, composer, effectBloom, renderPass;
 var maxIterations, center, scale;
 var bloomActivated = false;
+var bloom_threshold = 0;
+var bloom_strength = 0.5;
+var bloom_radius = 0;
+
+var startX,startY;
+var dragging = false;
 
 var renderSize;
 var sceneSize = 1;
@@ -43,6 +49,22 @@ function init() {
     renderer.setSize( renderSize, renderSize );
     var canvasContainer = document.getElementById("canvas-container");
     var canvas = renderer.domElement;
+    
+    //dragging controls
+    $('#canvas-container').on('mousedown', function( event ) {
+        event.preventDefault();
+        dragging = true;
+        startX = event.pageX;
+        startY = event.pageY;
+    });
+    $('#canvas-container').on('mouseup', function( event ) {
+        event.preventDefault();
+        dragging = false;
+        startX = 0;
+        startY = 0;
+    });
+    $('#canvas-container').on('mousemove', onMouseDrag);
+    
 
     canvas.addEventListener("webglcontextlost", function(event) {
         event.preventDefault();
@@ -62,12 +84,12 @@ function animate(){
 
     if (bloom) {
         composer = new EffectComposer(renderer);
-        var renderPass = new RenderPass(currentScene, camera);
+        renderPass = new RenderPass(currentScene, camera);
         composer.addPass(renderPass);
-        var effectBloom = new UnrealBloomPass(new THREE.Vector2(sceneSize, sceneSize), 1.5, 0.4, 0.85);
-        effectBloom.threshold = 0;
-        effectBloom.strength = 0.5;
-        effectBloom.radius = 0;
+        effectBloom = new UnrealBloomPass(new THREE.Vector2(sceneSize, sceneSize), 1.5, 0.4, 0.85);
+        effectBloom.threshold = bloom_threshold;
+        effectBloom.strength = bloom_strength;
+        effectBloom.radius = bloom_radius;
         composer.addPass(effectBloom);
 
         composer.render();
@@ -85,11 +107,53 @@ function onWindowResize() {
 }
 
 function onMouseDrag(e){
-    //moveCenter();
+    //var offset = exampleContainer.offset();
+    if(dragging){
+        var deltaX = startX - e.pageX;
+        var deltaY = startY - e.pageY;
+        console.log(deltaX, deltaY);
+        moveCenter(deltaX*0.001, deltaY*0.001);
+        startX = e.pageX;
+        startY = e.pageY;
+    }
+
+    event.preventDefault();
+    /*
+    if (example.clickPoint != null) {
+        example.clickPoint.position.set(example.mouse.x, example.mouse.y, 0.5);
+        if (example.clickPoint.hasOwnProperty('positionUpdate')) {
+            example.clickPoint.positionUpdate(); //In case the point from the example has a dedicated update func
+        }
+        //example.updateCurrentCurve();
+        $.proxy(updateFunction, example)();
+        //updateFunction();
+        //example.updateCurrentSpline();
+    } else {
+        var start = new THREE.Vector3(example.mouse.x, example.mouse.y, 1.0);
+        var direction = new THREE.Vector3(0.0, 0.0, -1.0);
+
+        example.raycaster.set( start, direction.normalize() );
+
+        var intersects = example.raycaster.intersectObjects( example.meshes );
+        //console.log(example.meshes);
+
+        if (intersects.length > 0) {
+            for (var i in intersects) {
+                if (intersects[i].object.hasOwnProperty('isHoverable') && intersects[i].object != example.hoverPoint) {
+                    example.hoverPoint = intersects[i].object;
+                    example.hasMouseUpdate = true;
+                    break;
+                }
+            }
+        } else {
+            example.hoverPoint = null;
+            example.hasMouseUpdate = true;
+        }
+    }*/
 }
 
 function moveCenter(x, y){
-    center = new THREE.Vector2(center.x+x, center.y+y);
+    center = new THREE.Vector2(center.x-x, center.y-y);
     return false;
 }
 
