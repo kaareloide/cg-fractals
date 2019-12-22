@@ -65,6 +65,10 @@ function init() {
     });
     $('#canvas-container').on('mousemove', onMouseDrag);
     
+    $('#bloom_threshold').on('input', function() { bloom_threshold = this.value });
+    $('#bloom_strength').on('input', function() { bloom_strength = this.value });
+    $('#bloom_radius').on('input', function() { bloom_radius = this.value });
+    
 
     canvas.addEventListener("webglcontextlost", function(event) {
         event.preventDefault();
@@ -107,49 +111,14 @@ function onWindowResize() {
 }
 
 function onMouseDrag(e){
-    //var offset = exampleContainer.offset();
     if(dragging){
         var deltaX = startX - e.pageX;
         var deltaY = startY - e.pageY;
-        console.log(deltaX, deltaY);
         moveCenter(deltaX*0.001, deltaY*0.001);
         startX = e.pageX;
         startY = e.pageY;
     }
-
     event.preventDefault();
-    /*
-    if (example.clickPoint != null) {
-        example.clickPoint.position.set(example.mouse.x, example.mouse.y, 0.5);
-        if (example.clickPoint.hasOwnProperty('positionUpdate')) {
-            example.clickPoint.positionUpdate(); //In case the point from the example has a dedicated update func
-        }
-        //example.updateCurrentCurve();
-        $.proxy(updateFunction, example)();
-        //updateFunction();
-        //example.updateCurrentSpline();
-    } else {
-        var start = new THREE.Vector3(example.mouse.x, example.mouse.y, 1.0);
-        var direction = new THREE.Vector3(0.0, 0.0, -1.0);
-
-        example.raycaster.set( start, direction.normalize() );
-
-        var intersects = example.raycaster.intersectObjects( example.meshes );
-        //console.log(example.meshes);
-
-        if (intersects.length > 0) {
-            for (var i in intersects) {
-                if (intersects[i].object.hasOwnProperty('isHoverable') && intersects[i].object != example.hoverPoint) {
-                    example.hoverPoint = intersects[i].object;
-                    example.hasMouseUpdate = true;
-                    break;
-                }
-            }
-        } else {
-            example.hoverPoint = null;
-            example.hasMouseUpdate = true;
-        }
-    }*/
 }
 
 function moveCenter(x, y){
@@ -263,16 +232,13 @@ function createPlaneMesh(VertexShader, FragShader){
 
 function clearOverlay() {
     // sliders
-    var elements = document.getElementsByClassName("slider-wrapper");
-    while (elements[0]) elements[0].parentNode.removeChild(elements[0]);
+    $('#sliders').empty();
 
     // dropdowns
-    elements = document.getElementsByClassName("dropdown-wrapper");
-    while (elements[0]) elements[0].parentNode.removeChild(elements[0]);
+    $('#dropdowns').empty();
 
     // buttons
-    elements = document.getElementById("buttons").children;
-    while (elements[0]) elements[0].parentNode.removeChild(elements[0]);
+    $('#buttons').empty();
 }
 
 function stopAnimation() {
@@ -372,6 +338,7 @@ function constantChangeAnimation(valueFrom, valueTo, realFunction, imagFunction,
 }
 
 function toggleBloom() {
+    $('.col-bloom').toggle();
     bloom = !bloom;
 }
 
