@@ -102,6 +102,10 @@ function animate(){
     else {
         renderer.render( currentScene, camera );
     }
+
+    currentScene.getObjectByName("mesh").material.needsUpdate = true;
+    currentScene.getObjectByName("mesh").material.uniforms.dTime.value = toRad(millis() / 10 % 360);
+
     requestAnimationFrame( animate );
 }
 
@@ -193,6 +197,14 @@ function resetSettings() {
     scale = defaultScale;
     center = defaultCenter;
     maxIterations = defaultMaxIterations;
+}
+
+function millis() {
+    return (new Date()).getTime();
+}
+
+function toRad(degree) {
+    return Math.PI * 2 * degree / 360;
 }
 
 // change scene with number keys 1,2,3
@@ -507,7 +519,8 @@ function createShaderMaterial(vertexShader, fragShader) {
             imaginaryConstant:{
                 type: 'float',
                 value: 0.0
-            }
+            },
+            dTime: { type: 'f', value: 0.0 },
         },
         vertexShader: vertexShader,
         fragmentShader: fragShader

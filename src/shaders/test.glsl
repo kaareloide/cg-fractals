@@ -1,11 +1,26 @@
 uniform vec2 center;
 uniform float scale;
+uniform float dTime;
 
 varying vec2 interpolatedUv;
+
+// rotation funtion from http://jamie-wong.com/2016/07/15/ray-marching-signed-distance-functions/
+mat4 rotateY(float theta) {
+    float c = cos(theta);
+    float s = sin(theta);
+
+    return mat4(
+    vec4(c, 0, s, 0),
+    vec4(0, 1, 0, 0),
+    vec4(-s, 0, c, 0),
+    vec4(0, 0, 0, 1)
+    );
+}
 
 // DE funtion from http://blog.hvidtfeldts.net/index.php/2011/08/distance-estimated-3d-fractals-iii-folding-space/
 float DE(vec3 z)
 {
+    z = (rotateY(dTime) * vec4(z, 1.0)).xyz;
     vec3 a1 = vec3(4,4,4);
     vec3 a2 = vec3(-4,-4,4);
     vec3 a3 = vec3(4,-4,-4);
