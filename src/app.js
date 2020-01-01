@@ -8,10 +8,11 @@ import VertexShader from './shaders/vertexShader.glsl';
 import MandelbrotFragShader from './shaders/mandelbrotFragShader.glsl';
 import JuliaFragShader_2 from './shaders/juliaFragShader_2.glsl';
 import JuliaFragShader_3 from './shaders/juliaFragShader_3.glsl';
+import TestShader from './shaders/test.glsl';
 
 let defaultMaxIterations = 400;
 let defaultCenter = new THREE.Vector2(0.5, 0.5);
-let defaultScale = 5.0 ;
+let defaultScale = 5 ;
 
 var camera, currentScene, renderer, composer, effectBloom, renderPass;
 var maxIterations, center, scale;
@@ -38,11 +39,11 @@ function init() {
     window.addEventListener("resize", onWindowResize);    // if window size changed
 
     camera = new THREE.OrthographicCamera( sceneSize / - 2,  sceneSize / 2,  sceneSize / 2, sceneSize / - 2, 0.01, 1000 );
-	camera.position.z = 10;
+    camera.position.z = 1;
     camera.position.x = 0;
     
 	resetSettings();
-    currentScene = createMandelbrotScene();
+    currentScene = createTestScene();
 	renderer = new THREE.WebGLRenderer( { antialias: true } );
 
     renderSize = window.innerHeight < window.innerWidth? window.innerHeight : window.innerWidth;
@@ -209,6 +210,9 @@ function changeScene(e) {
 		case "Digit3":
 			currentScene = createJuliaSet3Scene();
 			break;
+        case "Digit4":
+            currentScene = createTestScene();
+            break;
 	}
 
     resetSettings();
@@ -453,6 +457,16 @@ function createJuliaSet3Scene() {
         zoomAnimation,
         0.69, 0.45, scene
     );
+
+    addButton("Toggle bloom", toggleBloom);
+
+    return scene;
+}
+
+function createTestScene() {
+    var scene = new THREE.Scene();
+    var mesh = createPlaneMesh(VertexShader, TestShader);
+    scene.add( mesh );
 
     addButton("Toggle bloom", toggleBloom);
 
