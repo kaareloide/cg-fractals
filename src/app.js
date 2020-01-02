@@ -8,7 +8,7 @@ import VertexShader from './shaders/vertexShader.glsl';
 import MandelbrotFragShader from './shaders/mandelbrotFragShader.glsl';
 import JuliaFragShader_2 from './shaders/juliaFragShader_2.glsl';
 import JuliaFragShader_3 from './shaders/juliaFragShader_3.glsl';
-import TestShader from './shaders/test.glsl';
+import TetrahedronFragShader from './shaders/tetrahedronFragShader.glsl';
 
 let defaultMaxIterations = 400;
 let defaultCenter = new THREE.Vector2(0.5, 0.5);
@@ -28,22 +28,29 @@ var renderSize;
 var sceneSize = 1;
 var buttonAnimation;
 var bloom = false;
+var mousePosition = {x:0, y:0};
 
 init();
 
 function init() {
-	document.addEventListener("keypress", changeScene);
+	document.addEventListener("keypress", onKeyPress);
 
     document.addEventListener( 'DOMMouseScroll', onMouseWheel, false );	// firefox
     document.addEventListener("mousewheel", onMouseWheel, false);    // chrome
     window.addEventListener("resize", onWindowResize);    // if window size changed
+    document.addEventListener('mousemove', function(mouseMoveEvent){
+        mousePosition.x = mouseMoveEvent.pageX;
+        mousePosition.y = mouseMoveEvent.pageY;
+    }, false);
+
+
 
     camera = new THREE.OrthographicCamera( sceneSize / - 2,  sceneSize / 2,  sceneSize / 2, sceneSize / - 2, 0.01, 1000 );
     camera.position.z = 1;
     camera.position.x = 0;
     
 	resetSettings();
-    currentScene = createTestScene();
+    currentScene = createTetrahedronScene();
 	renderer = new THREE.WebGLRenderer( { antialias: true } );
 
     renderSize = window.innerHeight < window.innerWidth? window.innerHeight : window.innerWidth;
@@ -137,21 +144,21 @@ function updateZoom(scale){
 }
 
 function onMouseWheel(e) {
-    e = window.event || e;
+    //e = window.event || e;
 
     // kui mouse event toimus stseenist väljas siis ei zoomi ega uuenda keskkohta
     // kontroll x-koordinaadi järgi
     var windowSideSize;
     if (window.innerWidth > renderSize) {
         windowSideSize = (window.innerWidth - renderSize) / 2;
-        if (e.clientX < windowSideSize || e.clientX > windowSideSize + renderSize) {
+        if (mousePosition.x < windowSideSize || mousePosition.x > windowSideSize + renderSize) {
             return false;
         }
     }
     // kontroll y-koordinaadi järgi
     if (window.innerHeight > renderSize) {
         windowSideSize = (window.innerHeight - renderSize) / 2;
-        if (e.clientY < windowSideSize || e.clientY > windowSideSize + renderSize) {
+        if (mousePosition.y < windowSideSize || mousePosition.y > windowSideSize + renderSize) {
             return false;
         }
     }
@@ -169,17 +176,17 @@ function onMouseWheel(e) {
     var x;
     if (window.innerWidth > renderSize) {
         windowSideSize = (window.outerWidth - renderSize) / 2;
-        x = (e.clientX - windowSideSize) / renderSize;
+        x = (mousePosition.x - windowSideSize) / renderSize;
     } else {
-        x = e.clientX / window.innerWidth;
+        x = mousePosition.x / window.innerWidth;
     }
     // new y
     var y;
     if (window.innerHeight > renderSize) {
         windowSideSize = (window.innerHeight - renderSize) / 2;
-        y = (e.clientY - windowSideSize) / renderSize;
+        y = (mousePosition.y - windowSideSize) / renderSize;
     } else {
-        y = e.clientY / window.innerHeight;
+        y = mousePosition.y / window.innerHeight;
     }
 
     x = calculateCenterCoordinateAfterZoom(x, center.x, scaleBefore, scale);
@@ -208,7 +215,16 @@ function toRad(degree) {
 }
 
 // change scene with number keys 1,2,3
-function changeScene(e) {
+function onKeyPress(e) {
+    switch (e.code) {
+        case "KeyQ":
+            onMouseWheel({ detail: -3 , wheelDelta: -3});
+            return;
+        case "KeyW":
+            onMouseWheel({ detail: 3, wheelDelta: 3 });
+            return;
+    }
+
     clearOverlay();
     stopAnimation();
 
@@ -223,8 +239,10 @@ function changeScene(e) {
 			currentScene = createJuliaSet3Scene();
 			break;
         case "Digit4":
-            currentScene = createTestScene();
+            currentScene = createTetrahedronScene();
             break;
+        default:
+            return;
 	}
 
     resetSettings();
@@ -475,9 +493,9 @@ function createJuliaSet3Scene() {
     return scene;
 }
 
-function createTestScene() {
+function createTetrahedronScene() {
     var scene = new THREE.Scene();
-    var mesh = createPlaneMesh(VertexShader, TestShader);
+    var mesh = createPlaneMesh(VertexShader, TetrahedronFragShader);
     scene.add( mesh );
 
     addButton("Toggle bloom", toggleBloom);
