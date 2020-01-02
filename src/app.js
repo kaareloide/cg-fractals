@@ -104,7 +104,7 @@ function animate(){
     }
 
     currentScene.getObjectByName("mesh").material.needsUpdate = true;
-    currentScene.getObjectByName("mesh").material.uniforms.dTime.value = toRad(millis() / 10 % 360);
+    currentScene.getObjectByName("mesh").material.uniforms.dTime.value = toRad(millis() / 40 % 360);
 
     requestAnimationFrame( animate );
 }
