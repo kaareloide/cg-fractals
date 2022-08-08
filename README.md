@@ -1,3 +1,5 @@
+Project info https://courses.cs.ut.ee/2019/cg/fall/Main/Project-BeautifulFractalImageGenerator
+
 ## Demo site
 
 https://kaareloide.github.io/cg-fractals/
