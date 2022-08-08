@@ -1,6 +1,10 @@
 ## Demo site
 
-https://k44rel.github.io/cg-fractals/
+https://kaareloide.github.io/cg-fractals/
+
+Controls:
+ * Keyboard keys "1", "2", "3", "4" to switch between scenes.
+ * Mouse to zoom in and move around.
 
 ## Requirements
 
